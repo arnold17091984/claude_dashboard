@@ -1,0 +1,52 @@
+# Dependencies – reinstalled inside the image
+node_modules
+
+# Next.js build output – rebuilt inside the image
+.next
+
+# SQLite database files – provided at runtime via volume mount
+data/*.db
+data/*.db-shm
+data/*.db-wal
+
+# Environment files – injected at runtime, must never be baked into the image
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# Editor / OS artifacts
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea
+.vscode
+
+# Test output
+coverage
+.nyc_output
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Docker files themselves (avoid recursive COPY confusion)
+Dockerfile
+docker-compose.yml
+.dockerignore

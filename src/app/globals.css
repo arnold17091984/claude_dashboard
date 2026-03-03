@@ -1,26 +1,1106 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ============================================================
+   CLAUDE DASHBOARD — PREMIUM DESIGN SYSTEM
+   Apple / Vercel / Pentagram Grade
+   Color space: OKLCH (perceptually uniform, wide gamut)
+   Grid: 8px base unit
+   Typography: Geist Sans + Geist Mono
+   ============================================================ */
 
+@custom-variant dark (&:is(.dark *));
+
+/* ------------------------------------------------------------
+   THEME BRIDGE — maps CSS vars into Tailwind v4 tokens
+   ------------------------------------------------------------ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Core surface */
+  --color-background:             var(--background);
+  --color-foreground:             var(--foreground);
+
+  /* Cards / Popovers */
+  --color-card:                   var(--card);
+  --color-card-foreground:        var(--card-foreground);
+  --color-popover:                var(--popover);
+  --color-popover-foreground:     var(--popover-foreground);
+
+  /* Semantic UI roles */
+  --color-primary:                var(--primary);
+  --color-primary-foreground:     var(--primary-foreground);
+  --color-secondary:              var(--secondary);
+  --color-secondary-foreground:   var(--secondary-foreground);
+  --color-muted:                  var(--muted);
+  --color-muted-foreground:       var(--muted-foreground);
+  --color-accent:                 var(--accent);
+  --color-accent-foreground:      var(--accent-foreground);
+  --color-destructive:            var(--destructive);
+
+  /* Form chrome */
+  --color-border:                 var(--border);
+  --color-input:                  var(--input);
+  --color-ring:                   var(--ring);
+
+  /* Chart palette (6 slots) */
+  --color-chart-1:                var(--chart-1);
+  --color-chart-2:                var(--chart-2);
+  --color-chart-3:                var(--chart-3);
+  --color-chart-4:                var(--chart-4);
+  --color-chart-5:                var(--chart-5);
+  --color-chart-6:                var(--chart-6);
+
+  /* Sidebar */
+  --color-sidebar:                var(--sidebar);
+  --color-sidebar-foreground:     var(--sidebar-foreground);
+  --color-sidebar-primary:        var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent:         var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border:         var(--sidebar-border);
+  --color-sidebar-ring:           var(--sidebar-ring);
+
+  /* Brand signature tokens */
+  --color-brand:                  var(--brand);
+  --color-brand-foreground:       var(--brand-foreground);
+  --color-brand-muted:            var(--brand-muted);
+  --color-brand-subtle:           var(--brand-subtle);
+  --color-warm:                   var(--warm);
+  --color-warm-foreground:        var(--warm-foreground);
+
+  /* KPI delta colors */
+  --color-positive:               var(--positive);
+  --color-positive-muted:         var(--positive-muted);
+  --color-negative:               var(--negative);
+  --color-negative-muted:         var(--negative-muted);
+
+  /* Radius scale (8px grid) */
+  --radius-sm:   calc(var(--radius) - 4px);   /* 6px  */
+  --radius-md:   calc(var(--radius) - 2px);   /* 8px  */
+  --radius-lg:   var(--radius);               /* 10px */
+  --radius-xl:   calc(var(--radius) + 4px);   /* 14px */
+  --radius-2xl:  calc(var(--radius) + 8px);   /* 18px */
+  --radius-3xl:  calc(var(--radius) + 12px);  /* 22px */
+
+  /* Fonts */
+  --font-sans:  var(--font-geist-sans);
+  --font-mono:  var(--font-geist-mono);
+
+  /* Transition speed tokens */
+  --duration-fast:    150ms;
+  --duration-normal:  250ms;
+  --duration-slow:    400ms;
+  --ease-out-expo:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-sine: cubic-bezier(0.37, 0, 0.63, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ============================================================
+   LIGHT MODE
+   Signature: Deep Violet-Indigo primary (not generic blue)
+   Warm Amber accent
+   12-step neutral scale in OKLCH
+   ============================================================ */
+:root {
+  /* --- Radius base --- */
+  --radius: 0.625rem; /* 10px */
+
+  /* --- Neutral scale (12 steps, L from 1.00 → 0.09) --- */
+  --neutral-50:  oklch(0.985 0 0);    /* near-white      */
+  --neutral-100: oklch(0.960 0 0);
+  --neutral-200: oklch(0.922 0 0);
+  --neutral-300: oklch(0.870 0 0);
+  --neutral-400: oklch(0.780 0 0);
+  --neutral-500: oklch(0.660 0 0);
+  --neutral-600: oklch(0.520 0 0);
+  --neutral-700: oklch(0.400 0 0);
+  --neutral-800: oklch(0.280 0 0);
+  --neutral-900: oklch(0.185 0 0);
+  --neutral-950: oklch(0.120 0 0);
+  --neutral-1000: oklch(0.090 0 0);   /* near-black      */
+
+  /* --- Brand: Deep Violet-Indigo — hue 285 --- */
+  /* Rationale: distinctive from generic #3B82F6 blue,
+     vibrant enough for data viz, calm enough for data-dense UI */
+  --brand-50:   oklch(0.970 0.020 285);
+  --brand-100:  oklch(0.940 0.040 285);
+  --brand-200:  oklch(0.880 0.080 285);
+  --brand-300:  oklch(0.790 0.130 285);
+  --brand-400:  oklch(0.680 0.185 285);
+  --brand-500:  oklch(0.570 0.225 285);   /* signature mid     */
+  --brand-600:  oklch(0.490 0.240 285);   /* primary action    */
+  --brand-700:  oklch(0.410 0.220 285);
+  --brand-800:  oklch(0.320 0.180 285);
+  --brand-900:  oklch(0.235 0.130 285);
+
+  /* --- Warm Amber accent — hue 60 --- */
+  --warm-50:   oklch(0.980 0.025 60);
+  --warm-200:  oklch(0.920 0.080 60);
+  --warm-400:  oklch(0.820 0.155 60);
+  --warm-500:  oklch(0.750 0.175 60);    /* accent action     */
+  --warm-600:  oklch(0.650 0.170 60);
+
+  /* ---- Core surface tokens ---- */
+  --background:         oklch(0.985 0.002 285);   /* faint violet tint, not sterile white */
+  --foreground:         oklch(0.095 0.015 285);   /* near-black with violet warmth         */
+
+  --card:               oklch(1.000 0 0);          /* pure white cards on tinted bg         */
+  --card-foreground:    oklch(0.095 0.015 285);
+
+  --popover:            oklch(1.000 0 0);
+  --popover-foreground: oklch(0.095 0.015 285);
+
+  /* ---- Primary = brand-600 ---- */
+  --primary:            oklch(0.490 0.240 285);
+  --primary-foreground: oklch(0.985 0.005 285);
+
+  /* ---- Secondary = soft neutral ---- */
+  --secondary:          oklch(0.960 0.008 285);
+  --secondary-foreground: oklch(0.280 0.030 285);
+
+  /* ---- Muted ---- */
+  --muted:              oklch(0.955 0.006 285);
+  --muted-foreground:   oklch(0.480 0.020 285);
+
+  /* ---- Accent = warm amber ---- */
+  --accent:             oklch(0.960 0.020 60);
+  --accent-foreground:  oklch(0.280 0.050 60);
+
+  /* ---- Destructive ---- */
+  --destructive:        oklch(0.577 0.245 27.325);
+
+  /* ---- Chrome ---- */
+  --border:             oklch(0.900 0.010 285);
+  --input:              oklch(0.920 0.008 285);
+  --ring:               oklch(0.490 0.240 285);
+
+  /* ---- Brand tokens (utility) ---- */
+  --brand:              oklch(0.490 0.240 285);
+  --brand-foreground:   oklch(0.985 0.005 285);
+  --brand-muted:        oklch(0.880 0.060 285);
+  --brand-subtle:       oklch(0.960 0.018 285);
+
+  --warm:               oklch(0.750 0.175 60);
+  --warm-foreground:    oklch(0.985 0.010 60);
+
+  /* ---- KPI delta semantic colors ---- */
+  --positive:           oklch(0.540 0.160 155);   /* emerald-green   */
+  --positive-muted:     oklch(0.930 0.055 155);
+  --negative:           oklch(0.577 0.245 27.325); /* red             */
+  --negative-muted:     oklch(0.940 0.060 27.325);
+
+  /* ---- Chart palette (6 colors — perceptually balanced, OKLCH) ----
+     Each color: (1) distinct hue (2) readable on white (3) readable on dark
+     Hue sequence: Violet → Amber → Teal → Rose → Cyan → Lime           */
+  --chart-1: oklch(0.520 0.230 285);   /* brand violet      */
+  --chart-2: oklch(0.720 0.175 60);    /* warm amber        */
+  --chart-3: oklch(0.550 0.160 182);   /* teal              */
+  --chart-4: oklch(0.600 0.220 15);    /* rose-red          */
+  --chart-5: oklch(0.620 0.175 218);   /* sky-cyan          */
+  --chart-6: oklch(0.620 0.170 135);   /* sage-lime         */
+
+  /* ---- Skeleton shimmer highlight (light) ---- */
+  --skeleton-highlight:         oklch(0.930 0.006 285);
+
+  /* ---- Sidebar ---- */
+  --sidebar:                    oklch(0.976 0.004 285);  /* 1 step darker than bg */
+  --sidebar-foreground:         oklch(0.095 0.015 285);
+  --sidebar-primary:            oklch(0.490 0.240 285);
+  --sidebar-primary-foreground: oklch(0.985 0.005 285);
+  --sidebar-accent:             oklch(0.940 0.018 285);
+  --sidebar-accent-foreground:  oklch(0.490 0.240 285);  /* violet on hover  */
+  --sidebar-border:             oklch(0.905 0.010 285);
+  --sidebar-ring:               oklch(0.490 0.240 285);
+}
+
+/* ============================================================
+   DARK MODE
+   Background: deep violet-tinted near-black (not flat gray)
+   Cards: slightly elevated surface
+   All colors recalibrated for contrast & legibility
+   ============================================================ */
+.dark {
+  /* ---- Core surface ---- */
+  --background:         oklch(0.105 0.018 285);   /* deep violet-tinted near-black */
+  --foreground:         oklch(0.955 0.008 285);   /* near-white with violet warmth */
+
+  --card:               oklch(0.148 0.020 285);   /* slightly elevated surface     */
+  --card-foreground:    oklch(0.955 0.008 285);
+
+  --popover:            oklch(0.175 0.022 285);
+  --popover-foreground: oklch(0.955 0.008 285);
+
+  /* ---- Primary — brighter in dark mode for contrast ---- */
+  --primary:            oklch(0.680 0.200 285);
+  --primary-foreground: oklch(0.080 0.020 285);
+
+  /* ---- Secondary ---- */
+  --secondary:          oklch(0.210 0.025 285);
+  --secondary-foreground: oklch(0.920 0.010 285);
+
+  /* ---- Muted ---- */
+  --muted:              oklch(0.195 0.022 285);
+  --muted-foreground:   oklch(0.580 0.030 285);
+
+  /* ---- Accent = warm amber (boosted for dark) ---- */
+  --accent:             oklch(0.230 0.040 60);
+  --accent-foreground:  oklch(0.880 0.120 60);
+
+  /* ---- Destructive ---- */
+  --destructive:        oklch(0.650 0.220 27.325);
+
+  /* ---- Chrome ---- */
+  --border:             oklch(1 0 0 / 9%);
+  --input:              oklch(1 0 0 / 13%);
+  --ring:               oklch(0.680 0.200 285);
+
+  /* ---- Brand tokens ---- */
+  --brand:              oklch(0.680 0.200 285);
+  --brand-foreground:   oklch(0.080 0.020 285);
+  --brand-muted:        oklch(0.250 0.055 285);
+  --brand-subtle:       oklch(0.190 0.028 285);
+
+  --warm:               oklch(0.780 0.170 60);
+  --warm-foreground:    oklch(0.080 0.020 60);
+
+  /* ---- KPI delta semantic ---- */
+  --positive:           oklch(0.640 0.165 155);
+  --positive-muted:     oklch(0.200 0.060 155);
+  --negative:           oklch(0.650 0.220 27.325);
+  --negative-muted:     oklch(0.220 0.065 27.325);
+
+  /* ---- Chart palette (dark) — higher lightness for visibility ---- */
+  --chart-1: oklch(0.660 0.215 285);   /* brand violet (brighter) */
+  --chart-2: oklch(0.780 0.165 60);    /* warm amber              */
+  --chart-3: oklch(0.650 0.155 182);   /* teal                    */
+  --chart-4: oklch(0.680 0.210 15);    /* rose-red                */
+  --chart-5: oklch(0.700 0.165 218);   /* sky-cyan                */
+  --chart-6: oklch(0.700 0.158 135);   /* sage-lime               */
+
+  /* ---- Skeleton shimmer highlight (dark) ---- */
+  --skeleton-highlight:         oklch(0.240 0.022 285);
+
+  /* ---- Sidebar (slightly different from card) ---- */
+  --sidebar:                    oklch(0.125 0.020 285);
+  --sidebar-foreground:         oklch(0.955 0.008 285);
+  --sidebar-primary:            oklch(0.680 0.200 285);
+  --sidebar-primary-foreground: oklch(0.080 0.020 285);
+  --sidebar-accent:             oklch(0.200 0.030 285);
+  --sidebar-accent-foreground:  oklch(0.720 0.185 285);
+  --sidebar-border:             oklch(1 0 0 / 8%);
+  --sidebar-ring:               oklch(0.680 0.200 285);
+}
+
+/* ============================================================
+   BASE LAYER — Reset + global defaults
+   ============================================================ */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    /* Smooth all color/shadow/opacity transitions by default */
+    transition-property: color, background-color, border-color, box-shadow, opacity;
+    transition-duration: var(--duration-fast);
+    transition-timing-function: var(--ease-out-expo);
+  }
+
+  /* Disable transition on motion-sensitive elements */
+  *, *::before, *::after {
+    transition: none;
+  }
+
+  /* Re-enable only on interactive targets */
+  button, a, [role="button"],
+  input, select, textarea {
+    transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+    transition-duration: var(--duration-fast);
+    transition-timing-function: var(--ease-out-expo);
+  }
+
+  html {
+    font-feature-settings: "rlig" 1, "calt" 1, "ss01" 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-geist-sans), system-ui, sans-serif;
+    font-size: 14px;           /* base: 14px (data-dense UI standard) */
+    line-height: 1.6;
+    letter-spacing: -0.01em;  /* Geist looks better tight */
+  }
+
+  /* Tabular nums for all data contexts */
+  [data-slot="kpi-value"],
+  .tabular-nums,
+  code, pre, kbd {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+
+  code, kbd, pre {
+    font-family: var(--font-geist-mono), monospace;
+  }
+
+  /* Smooth scroll */
+  html {
+    scroll-behavior: smooth;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ============================================================
+   TYPOGRAPHY SYSTEM
+   6 levels — sizes on 1.25 Minor Third scale from 14px base
+   ============================================================ */
+@layer base {
+  /* Display — KPI stat numbers */
+  .text-display {
+    font-size: clamp(1.75rem, 3vw, 2.25rem); /* 28–36px */
+    font-weight: 700;
+    line-height: 1.0;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1, "ss01" 1;
+  }
+
+  /* H1 — Page title */
+  .text-h1 {
+    font-size: 1.5rem;     /* 24px */
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+  }
+
+  /* H2 — Section title */
+  .text-h2 {
+    font-size: 1.125rem;   /* 18px */
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+  }
+
+  /* H3 — Card title */
+  .text-h3 {
+    font-size: 0.9375rem;  /* 15px */
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+  }
+
+  /* Body — Default content */
+  .text-body {
+    font-size: 0.875rem;   /* 14px */
+    font-weight: 400;
+    line-height: 1.6;
+    letter-spacing: -0.005em;
+  }
+
+  /* Small — Labels, captions, metadata */
+  .text-small {
+    font-size: 0.75rem;    /* 12px */
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0.005em;
+  }
+
+  /* Mono — Code, IDs, tokens */
+  .text-mono {
+    font-family: var(--font-geist-mono), monospace;
+    font-size: 0.8125rem;  /* 13px */
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0;
+    font-feature-settings: "tnum" 1;
+  }
+
+  /* Overline — Chart axis labels, table headers */
+  .text-overline {
+    font-size: 0.6875rem;  /* 11px */
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+}
+
+/* ============================================================
+   COMPONENT LAYER
+   KPI Cards, Charts, Sidebar, Header, Animations
+   ============================================================ */
+@layer components {
+
+  /* ----------------------------------------------------------
+     KPI CARD SYSTEM
+     ---------------------------------------------------------- */
+
+  /* Base card override — tighter, more refined than shadcn default */
+  .kpi-card {
+    position: relative;
+    overflow: hidden;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);  /* 14px — slightly more rounded */
+    padding: 1.25rem 1.5rem;          /* 20px 24px */
+    box-shadow:
+      0 1px 2px oklch(0 0 0 / 4%),
+      0 0 0 0 var(--brand);           /* ring placeholder for hover */
+    transition-property: box-shadow, transform, border-color;
+    transition-duration: var(--duration-normal);
+    transition-timing-function: var(--ease-out-expo);
+  }
+
+  .kpi-card::before {
+    /* Subtle top-edge gradient accent line */
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      oklch(0.680 0.200 285 / 40%) 30%,
+      oklch(0.780 0.175 60 / 30%) 70%,
+      transparent 100%
+    );
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    pointer-events: none;
+  }
+
+  .kpi-card:hover {
+    box-shadow:
+      0 4px 16px oklch(0.490 0.240 285 / 10%),
+      0 1px 3px oklch(0 0 0 / 6%),
+      0 0 0 1px oklch(0.490 0.240 285 / 15%);
+    border-color: oklch(0.680 0.200 285 / 35%);
+    transform: translateY(-1px);
+  }
+
+  .dark .kpi-card:hover {
+    box-shadow:
+      0 4px 20px oklch(0.680 0.200 285 / 15%),
+      0 1px 3px oklch(0 0 0 / 40%),
+      0 0 0 1px oklch(0.680 0.200 285 / 20%);
+    border-color: oklch(0.680 0.200 285 / 30%);
+  }
+
+  /* KPI icon container */
+  .kpi-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;            /* 32px */
+    height: 2rem;
+    border-radius: var(--radius-md);
+    background: var(--brand-subtle);
+    color: var(--brand);
+    flex-shrink: 0;
+  }
+
+  .dark .kpi-icon {
+    background: var(--brand-muted);
+    color: var(--brand);
+  }
+
+  /* KPI metric value — uses .text-display */
+  .kpi-value {
+    font-size: clamp(1.625rem, 2.5vw, 2rem); /* 26–32px */
+    font-weight: 700;
+    line-height: 1.0;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+    color: var(--foreground);
+    margin-top: 0.75rem;    /* 12px from icon */
+  }
+
+  /* KPI label */
+  .kpi-label {
+    font-size: 0.8125rem;   /* 13px */
+    font-weight: 500;
+    color: var(--muted-foreground);
+    margin-top: 0.125rem;   /* 2px */
+    letter-spacing: -0.005em;
+  }
+
+  /* KPI delta — directional change indicator */
+  .kpi-delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.1875rem;         /* 3px */
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    margin-top: 0.5rem;
+    padding: 0.125rem 0.375rem;  /* 2px 6px */
+    border-radius: var(--radius-sm);
+  }
+
+  .kpi-delta--positive {
+    color: var(--positive);
+    background: var(--positive-muted);
+  }
+
+  .kpi-delta--negative {
+    color: var(--negative);
+    background: var(--negative-muted);
+  }
+
+  .kpi-delta--neutral {
+    color: var(--muted-foreground);
+    background: var(--muted);
+  }
+
+  /* ----------------------------------------------------------
+     CHART CONTAINER SYSTEM
+     ---------------------------------------------------------- */
+
+  .chart-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: 0 1px 2px oklch(0 0 0 / 4%);
+  }
+
+  .chart-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem 0;  /* 20px 24px */
+  }
+
+  .chart-card-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--foreground);
+  }
+
+  .chart-card-description {
+    font-size: 0.75rem;
+    color: var(--muted-foreground);
+    margin-top: 0.125rem;
+  }
+
+  .chart-card-body {
+    padding: 1rem 1.5rem 1.25rem;
+  }
+
+  /* Recharts customization via CSS */
+  .recharts-cartesian-grid-horizontal line,
+  .recharts-cartesian-grid-vertical line {
+    stroke: var(--border) !important;
+    stroke-opacity: 0.7;
+    stroke-dasharray: none !important;  /* solid lines, not dashed */
+  }
+
+  /* Axis text styling */
+  .recharts-text {
+    fill: var(--muted-foreground) !important;
+    font-family: var(--font-geist-sans) !important;
+    font-size: 11px !important;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  /* Tooltip */
+  .recharts-tooltip-wrapper .recharts-default-tooltip {
+    background: var(--popover) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow:
+      0 8px 24px oklch(0 0 0 / 12%),
+      0 2px 8px oklch(0 0 0 / 8%) !important;
+    padding: 0.625rem 0.875rem !important;
+    font-family: var(--font-geist-sans) !important;
+    font-size: 13px !important;
+  }
+
+  .recharts-tooltip-label {
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    color: var(--muted-foreground) !important;
+    margin-bottom: 0.25rem !important;
+  }
+
+  .recharts-tooltip-item {
+    color: var(--foreground) !important;
+    font-size: 13px !important;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Bar border radius */
+  .recharts-bar-rectangle {
+    border-radius: 3px 3px 0 0;
+  }
+
+  /* Active dot on area charts */
+  .recharts-active-dot circle {
+    stroke: var(--background) !important;
+    stroke-width: 2px !important;
+  }
+
+  /* ----------------------------------------------------------
+     SHADCN CARD REFINEMENTS
+     Override shadcn Card to match design system
+     ---------------------------------------------------------- */
+
+  [data-slot="card"] {
+    border-radius: var(--radius-xl) !important;
+    box-shadow: 0 1px 2px oklch(0 0 0 / 4%) !important;
+    border-color: var(--border) !important;
+    gap: 0 !important;  /* remove default gap, manage internally */
+    transition-property: box-shadow, border-color;
+    transition-duration: var(--duration-normal);
+    transition-timing-function: var(--ease-out-expo);
+  }
+
+  [data-slot="card-title"] {
+    font-size: 0.9375rem !important;    /* 15px */
+    font-weight: 600 !important;
+    letter-spacing: -0.01em !important;
+    line-height: 1.4 !important;
+  }
+
+  [data-slot="card-header"] {
+    padding-bottom: 1rem !important;    /* 16px */
+  }
+
+  /* ----------------------------------------------------------
+     SIDEBAR REFINEMENTS
+     ---------------------------------------------------------- */
+
+  /* Sidebar container */
+  [data-sidebar="sidebar"] {
+    border-right: 1px solid var(--sidebar-border) !important;
+  }
+
+  /* Logo header area */
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;            /* 10px */
+    padding: 0 1.25rem;
+    height: 3.5rem;           /* 56px header height */
+  }
+
+  .sidebar-brand-icon {
+    width: 1.75rem;           /* 28px */
+    height: 1.75rem;
+    border-radius: var(--radius-md);
+    background: linear-gradient(
+      135deg,
+      var(--brand) 0%,
+      oklch(0.620 0.175 218) 100%
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px oklch(0.490 0.240 285 / 30%);
+  }
+
+  .sidebar-brand-name {
+    font-size: 0.9375rem;     /* 15px */
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--sidebar-foreground);
+  }
+
+  /* Nav group label */
+  [data-sidebar="group-label"] {
+    font-size: 0.6875rem !important;   /* 11px */
+    font-weight: 600 !important;
+    letter-spacing: 0.07em !important;
+    text-transform: uppercase !important;
+    color: var(--muted-foreground) !important;
+    padding: 0.5rem 0.75rem 0.25rem !important;
+  }
+
+  /* Nav menu item button */
+  [data-sidebar="menu-button"] {
+    border-radius: var(--radius-md) !important;
+    height: 2.25rem !important;        /* 36px */
+    padding: 0 0.625rem !important;    /* 10px */
+    font-size: 0.875rem !important;    /* 14px */
+    font-weight: 500 !important;
+    color: var(--sidebar-foreground) !important;
+    gap: 0.625rem !important;
+    letter-spacing: -0.005em !important;
+    position: relative !important;
+    transition-property: background-color, color !important;
+    transition-duration: var(--duration-fast) !important;
+  }
+
+  /* Hover state */
+  [data-sidebar="menu-button"]:hover {
+    background: var(--sidebar-accent) !important;
+    color: var(--sidebar-accent-foreground) !important;
+  }
+
+  /* Active state — left indicator bar */
+  [data-sidebar="menu-button"][data-active="true"] {
+    background: var(--sidebar-accent) !important;
+    color: var(--sidebar-accent-foreground) !important;
+    font-weight: 600 !important;
+  }
+
+  [data-sidebar="menu-button"][data-active="true"]::before {
+    content: "";
+    position: absolute;
+    left: -0.625rem;          /* flush to padding edge */
+    top: 25%;
+    bottom: 25%;
+    width: 2.5px;
+    border-radius: 0 2px 2px 0;
+    background: var(--brand);
+    opacity: 1;
+  }
+
+  /* Icon inside nav button */
+  [data-sidebar="menu-button"] svg {
+    width: 1rem !important;    /* 16px */
+    height: 1rem !important;
+    opacity: 0.7;
+  }
+
+  [data-sidebar="menu-button"]:hover svg,
+  [data-sidebar="menu-button"][data-active="true"] svg {
+    opacity: 1;
+  }
+
+  /* Sidebar footer */
+  [data-sidebar="footer"] {
+    border-top: 1px solid var(--sidebar-border) !important;
+  }
+
+  /* ----------------------------------------------------------
+     PAGE HEADER REFINEMENTS
+     ---------------------------------------------------------- */
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    height: 3.5rem;             /* 56px — matches sidebar brand height */
+    padding: 0 1.5rem;
+    border-bottom: 1px solid var(--border);
+    gap: 0.75rem;
+    background: var(--background);
+    /* Subtle frosted glass effect on supported browsers */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .page-header-title {
+    font-size: 0.9375rem;       /* 15px */
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--foreground);
+    line-height: 1.2;
+  }
+
+  .page-header-description {
+    font-size: 0.75rem;         /* 12px */
+    color: var(--muted-foreground);
+    line-height: 1.4;
+    letter-spacing: -0.005em;
+  }
+
+  /* Separator between trigger and title */
+  .page-header-sep {
+    width: 1px;
+    height: 1rem;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+
+  /* ----------------------------------------------------------
+     PERIOD TAB (7d / 30d / 90d)
+     ---------------------------------------------------------- */
+
+  /* Refine shadcn Tabs to pill style */
+  [role="tablist"] {
+    background: var(--muted) !important;
+    border-radius: var(--radius-lg) !important;
+    padding: 0.1875rem !important;    /* 3px */
+    height: auto !important;
+    gap: 0.125rem !important;
+  }
+
+  [role="tab"] {
+    border-radius: calc(var(--radius-lg) - 2px) !important;
+    font-size: 0.8125rem !important;  /* 13px */
+    font-weight: 500 !important;
+    padding: 0.25rem 0.75rem !important;
+    height: 1.75rem !important;       /* 28px */
+    letter-spacing: -0.005em !important;
+    transition-property: background-color, box-shadow, color !important;
+    transition-duration: var(--duration-fast) !important;
+  }
+
+  [role="tab"][data-state="active"] {
+    background: var(--card) !important;
+    color: var(--foreground) !important;
+    box-shadow: 0 1px 3px oklch(0 0 0 / 8%) !important;
+    font-weight: 600 !important;
+  }
+
+  /* ----------------------------------------------------------
+     LOADING SKELETON SYSTEM
+     ---------------------------------------------------------- */
+
+  /* Skeleton shimmer animation */
+  @keyframes skeleton-shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position:  200% 0; }
+  }
+
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--muted) 25%,
+      var(--skeleton-highlight, oklch(0.930 0.006 285)) 50%,
+      var(--muted) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.6s ease-in-out infinite;
+    border-radius: var(--radius-md);
+  }
+
+  /* Override animate-pulse with shimmer for loading states */
+  .animate-pulse {
+    background: linear-gradient(
+      90deg,
+      var(--muted) 25%,
+      var(--skeleton-highlight, oklch(0.930 0.006 285)) 50%,
+      var(--muted) 75%
+    ) !important;
+    background-size: 200% 100% !important;
+    animation: skeleton-shimmer 1.6s ease-in-out infinite !important;
+  }
+
+  /* ----------------------------------------------------------
+     KPI NUMBER COUNTER ANIMATION
+     CSS-only approach using @property for animatable numbers
+     ---------------------------------------------------------- */
+
+  @keyframes count-up {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .kpi-value-animate {
+    animation: count-up 0.4s var(--ease-out-expo) forwards;
+  }
+
+  /* ----------------------------------------------------------
+     CHART ENTRY ANIMATIONS
+     ---------------------------------------------------------- */
+
+  @keyframes chart-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes bar-grow-up {
+    from { transform: scaleY(0); transform-origin: bottom; }
+    to   { transform: scaleY(1); transform-origin: bottom; }
+  }
+
+  .chart-enter {
+    animation: chart-fade-in 0.4s var(--ease-out-expo) forwards;
+  }
+
+  /* Stagger chart cards */
+  .chart-enter:nth-child(1) { animation-delay: 0ms;   }
+  .chart-enter:nth-child(2) { animation-delay: 60ms;  }
+  .chart-enter:nth-child(3) { animation-delay: 120ms; }
+  .chart-enter:nth-child(4) { animation-delay: 180ms; }
+
+  /* ----------------------------------------------------------
+     BADGE SYSTEM
+     ---------------------------------------------------------- */
+
+  [data-slot="badge"] {
+    font-size: 0.6875rem !important;  /* 11px */
+    font-weight: 600 !important;
+    letter-spacing: 0.01em !important;
+    padding: 0.125rem 0.4375rem !important;  /* 2px 7px */
+    border-radius: var(--radius-sm) !important;
+  }
+
+  /* ----------------------------------------------------------
+     PROGRESS BAR (Project distribution)
+     ---------------------------------------------------------- */
+
+  .progress-bar-track {
+    height: 5px;
+    border-radius: 999px;
+    background: var(--muted);
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      var(--brand) 0%,
+      oklch(0.620 0.175 218) 100%  /* violet → cyan gradient */
+    );
+    transition: width 0.6s var(--ease-out-expo);
+    transform-origin: left;
+  }
+
+  /* ----------------------------------------------------------
+     SCROLLBAR STYLING
+     ---------------------------------------------------------- */
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
+    opacity: 0.5;
+  }
+
+  /* ----------------------------------------------------------
+     FOCUS VISIBLE — keyboard nav ring
+     ---------------------------------------------------------- */
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* ----------------------------------------------------------
+     DASHBOARD LAYOUT HELPERS
+     ---------------------------------------------------------- */
+
+  /* Main content area with 8px grid spacing */
+  .dashboard-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;    /* 24px — 3 × 8px */
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;        /* 24px between sections */
+  }
+
+  /* Section header row (title + period tabs) */
+  .dashboard-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;       /* 12px */
+  }
+
+  /* 2-column chart grid */
+  .chart-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;          /* 16px — 2 × 8px */
+  }
+
+  /* 4-column KPI grid */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;          /* 16px */
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .kpi-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .chart-grid-2 {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .kpi-grid {
+      grid-template-columns: 1fr;
+    }
+    .dashboard-content {
+      padding: 1rem;
+      gap: 1rem;
+    }
+  }
+
+  /* ----------------------------------------------------------
+     SELECTION & HIGHLIGHT
+     ---------------------------------------------------------- */
+
+  ::selection {
+    background: oklch(0.490 0.240 285 / 18%);
+    color: var(--foreground);
+  }
+
+  .dark ::selection {
+    background: oklch(0.680 0.200 285 / 25%);
+    color: var(--foreground);
+  }
+}
+
+/* ============================================================
+   UTILITIES LAYER — single-purpose utility extensions
+   ============================================================ */
+@layer utilities {
+  /* Brand gradient text */
+  .text-gradient-brand {
+    background: linear-gradient(
+      135deg,
+      var(--brand) 0%,
+      oklch(0.620 0.175 218) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Inset shadow — used for pressed states */
+  .shadow-inset-brand {
+    box-shadow: inset 0 1px 3px oklch(0.490 0.240 285 / 15%);
+  }
+
+  /* Glass card surface */
+  .glass {
+    background: color-mix(in oklch, var(--card) 80%, transparent);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid color-mix(in oklch, var(--border) 60%, transparent);
+  }
+
+  /* Tabular nums shorthand */
+  .nums {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+
+  /* Letter-spacing helpers matching type system */
+  .tracking-display { letter-spacing: -0.04em; }
+  .tracking-heading { letter-spacing: -0.02em; }
+  .tracking-body    { letter-spacing: -0.005em; }
+  .tracking-label   { letter-spacing: 0.06em; }
 }

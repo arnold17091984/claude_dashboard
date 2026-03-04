@@ -6,6 +6,22 @@ import { sql, sum, count, desc, eq, gte, and } from "drizzle-orm";
 export const usersRoute = new Hono();
 
 usersRoute.get("/", async (c) => {
+  // Return all users with their cumulative (all-time) stats aggregated from
+  // daily_summary. This differs from the ranking endpoint which filters by a
+  // rolling time window. Sorted by total cost descending by default.
+
+  const summaryRows = await db
+    .select({
+      userId: dailySummary.userId,
+      sessions: sum(dailySummary.sessionCount),
+      messages: sum(dailySummary.messageCount),
+      toolCalls: sum(dailySummary.toolCallCount),
+      cost: sum(dailySummary.estimatedCostUsd),
+      activeMinutes: sum(dailySummary.activeMinutes),
+    })
+    .from(dailySummary)
+    .groupBy(dailySummary.userId);
+
   const userList = await db
     .select({
       id: users.id,
@@ -15,10 +31,52 @@ usersRoute.get("/", async (c) => {
       avatarUrl: users.avatarUrl,
       createdAt: users.createdAt,
     })
-    .from(users)
-    .orderBy(users.displayName);
+    .from(users);
 
-  return c.json({ users: userList });
+  // Top tool per user (all-time): most frequent toolName across events
+  const topToolRows = await db
+    .select({
+      userId: events.userId,
+      toolName: events.toolName,
+      cnt: count(),
+    })
+    .from(events)
+    .where(sql`${events.toolName} IS NOT NULL`)
+    .groupBy(events.userId, events.toolName)
+    .orderBy(desc(count()));
+
+  const topToolMap = new Map<string, string>();
+  for (const row of topToolRows) {
+    // First occurrence per user after ordering by count desc is the top tool
+    if (!topToolMap.has(row.userId)) {
+      topToolMap.set(row.userId, row.toolName!);
+    }
+  }
+
+  const summaryMap = new Map(summaryRows.map((r) => [r.userId, r]));
+
+  const userStats = userList.map((u) => {
+    const stats = summaryMap.get(u.id);
+    return {
+      userId: u.id,
+      displayName: u.displayName,
+      email: u.email,
+      team: u.team,
+      avatarUrl: u.avatarUrl,
+      createdAt: u.createdAt,
+      sessions: Number(stats?.sessions ?? 0),
+      messages: Number(stats?.messages ?? 0),
+      toolCalls: Number(stats?.toolCalls ?? 0),
+      cost: Number(stats?.cost ?? 0),
+      activeMinutes: Number(stats?.activeMinutes ?? 0),
+      topTool: topToolMap.get(u.id) ?? null,
+    };
+  });
+
+  // Sort by cumulative cost descending
+  userStats.sort((a, b) => b.cost - a.cost);
+
+  return c.json({ users: userStats });
 });
 
 usersRoute.get("/:id", async (c) => {

@@ -7,11 +7,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, MessageSquare, DollarSign, Wrench } from "lucide-react";
+import { MessageSquare, DollarSign, Wrench } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 interface UserEntry {
-  rank: number;
   userId: string;
   displayName: string;
   email: string | null;
@@ -25,10 +24,8 @@ interface UserEntry {
   topTool: string | null;
 }
 
-interface RankingData {
-  ranking: UserEntry[];
-  period: string;
-  sortBy: string;
+interface UsersData {
+  users: UserEntry[];
 }
 
 function getInitials(name: string): string {
@@ -47,12 +44,12 @@ function formatNumber(n: number): string {
 }
 
 export default function UsersPage() {
-  const [data, setData] = useState<RankingData | null>(null);
+  const [data, setData] = useState<UsersData | null>(null);
   const [loading, setLoading] = useState(true);
   const { t } = useI18n();
 
   useEffect(() => {
-    fetch("/api/v1/ranking?period=90d&sortBy=cost")
+    fetch("/api/v1/users")
       .then((r) => r.json())
       .then(setData)
       .catch(console.error)
@@ -70,7 +67,7 @@ export default function UsersPage() {
           <div>
             <h2 className="text-h2 text-foreground">{t("page.users.heading")}</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              {t("page.users.count", { count: data?.ranking.length || 0 })}
+              {t("page.users.count", { count: data?.users.length || 0 })}
             </p>
           </div>
         </div>
@@ -81,7 +78,7 @@ export default function UsersPage() {
               <Skeleton key={i} className="h-40 rounded-xl" />
             ))}
           </div>
-        ) : data?.ranking.length === 0 ? (
+        ) : data?.users.length === 0 ? (
           <Card>
             <CardContent className="flex items-center justify-center py-12">
               <p className="text-muted-foreground">{t("page.users.noUsers")}</p>
@@ -89,7 +86,7 @@ export default function UsersPage() {
           </Card>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {data?.ranking.map((user) => (
+            {data?.users.map((user) => (
               <Link key={user.userId} href={`/users/${user.userId}`}>
                 <Card className="transition-colors hover:bg-muted/30">
                   <CardContent className="pt-4">

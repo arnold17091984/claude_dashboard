@@ -2,13 +2,13 @@ import { Hono } from "hono";
 import { db } from "@/server/db";
 import { tokenUsage } from "@/server/db/schema";
 import { sql, sum, count, desc, gte } from "drizzle-orm";
+import { parsePeriod, periodToSince } from "@/server/api/middleware/validate";
 
 export const modelsRoute = new Hono();
 
 modelsRoute.get("/usage", async (c) => {
-  const period = c.req.query("period") || "30d";
-  const daysBack = period === "90d" ? 90 : period === "30d" ? 30 : 7;
-  const since = new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000).toISOString();
+  const period = parsePeriod(c.req.query("period") || "30d");
+  const since = periodToSince(period);
 
   const usage = await db
     .select({
@@ -49,9 +49,8 @@ modelsRoute.get("/usage", async (c) => {
 });
 
 modelsRoute.get("/cost", async (c) => {
-  const period = c.req.query("period") || "30d";
-  const daysBack = period === "90d" ? 90 : period === "30d" ? 30 : 7;
-  const since = new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000).toISOString();
+  const period = parsePeriod(c.req.query("period") || "30d");
+  const since = periodToSince(period);
 
   // 日別 x モデル別コスト
   const dailyCost = await db

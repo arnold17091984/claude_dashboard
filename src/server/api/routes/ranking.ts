@@ -2,16 +2,24 @@ import { Hono } from "hono";
 import { db } from "@/server/db";
 import { users, dailySummary } from "@/server/db/schema";
 import { sql, sum, desc, asc, eq, gte, and } from "drizzle-orm";
+import {
+  parsePeriod,
+  periodToSince,
+  parseSortBy,
+} from "@/server/api/middleware/validate";
+
+const RANKING_SORT_OPTIONS = ["cost", "sessions", "toolCalls"] as const;
 
 export const rankingRoute = new Hono();
 
 rankingRoute.get("/", async (c) => {
-  const period = c.req.query("period") || "7d";
-  const sortBy = c.req.query("sortBy") || "cost";
-  const daysBack = period === "90d" ? 90 : period === "30d" ? 30 : 7;
-  const since = new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .slice(0, 10);
+  const period = parsePeriod(c.req.query("period"));
+  const sortBy = parseSortBy(
+    c.req.query("sortBy"),
+    RANKING_SORT_OPTIONS,
+    "cost"
+  );
+  const since = periodToSince(period).slice(0, 10);
 
   const aggregated = await db
     .select({

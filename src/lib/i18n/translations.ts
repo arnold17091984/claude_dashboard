@@ -188,6 +188,17 @@ const ja: TranslationMap = {
   "page.userDetail.noSessions": "セッションがありません",
   "page.userDetail.toolUsageLabel": "ツール使用",
   "page.userDetail.usageCount": "使用回数",
+
+  // Error boundary
+  "error.title": "エラーが発生しました",
+  "error.description": "ページの読み込み中に予期しないエラーが発生しました。",
+  "error.retry": "再試行",
+  "error.goHome": "ホームへ戻る",
+
+  // Not found
+  "notFound.title": "404 — ページが見つかりません",
+  "notFound.description": "お探しのページは存在しないか、移動した可能性があります。",
+  "notFound.goHome": "ダッシュボードへ戻る",
 };
 
 const en: TranslationMap = {
@@ -375,6 +386,17 @@ const en: TranslationMap = {
   "page.userDetail.noSessions": "No sessions",
   "page.userDetail.toolUsageLabel": "Tool Usage",
   "page.userDetail.usageCount": "Usage Count",
+
+  // Error boundary
+  "error.title": "Something went wrong",
+  "error.description": "An unexpected error occurred while loading this page.",
+  "error.retry": "Try again",
+  "error.goHome": "Go to dashboard",
+
+  // Not found
+  "notFound.title": "404 — Page not found",
+  "notFound.description": "The page you're looking for doesn't exist or has been moved.",
+  "notFound.goHome": "Back to dashboard",
 };
 
 const ko: TranslationMap = {
@@ -563,6 +585,17 @@ const ko: TranslationMap = {
   "page.userDetail.noSessions": "세션이 없습니다",
   "page.userDetail.toolUsageLabel": "도구 사용",
   "page.userDetail.usageCount": "사용 횟수",
+
+  // Error boundary
+  "error.title": "오류가 발생했습니다",
+  "error.description": "페이지를 불러오는 중 예기치 않은 오류가 발생했습니다.",
+  "error.retry": "다시 시도",
+  "error.goHome": "대시보드로 이동",
+
+  // Not found
+  "notFound.title": "404 — 페이지를 찾을 수 없습니다",
+  "notFound.description": "찾으시는 페이지가 존재하지 않거나 이동되었습니다.",
+  "notFound.goHome": "대시보드로 돌아가기",
 };
 
 export const translations: Record<Locale, TranslationMap> = { ja, en, ko };

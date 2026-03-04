@@ -160,17 +160,29 @@ const ja: TranslationMap = {
   "page.insights.generationFailed": "生成に失敗しました",
   "page.insights.apiKeyHint":
     "ANTHROPIC_API_KEY が .env.local に設定されていることを確認してください",
+  "page.insights.apiKeySetup": "ANTHROPIC_API_KEY を設定してください",
+  "page.insights.apiKeySetupDesc":
+    ".env.local ファイルに ANTHROPIC_API_KEY=your_key_here を追加してください",
   "page.insights.empty": "インサイトはまだありません",
   "page.insights.emptyHint":
     "上の「新規インサイトを生成」ボタンを押して、AI分析を開始してください。",
   "page.insights.apiKeyNote": "※ ANTHROPIC_API_KEY の設定が必要です",
   "page.insights.reportTitle": "AI分析レポート",
+  "page.insights.filterAll": "すべて",
+  "page.insights.typeLabel": "種類",
+  "page.insights.generateType": "{type} を生成",
+  "page.insights.userInsightTitle": "ユーザー別インサイト",
+  "page.insights.userIdPlaceholder": "ユーザーID を入力",
+  "page.insights.generateUserInsight": "生成",
 
   // Insight types
   "insight.weeklySummary": "週次サマリー",
   "insight.costOptimization": "コスト最適化",
   "insight.anomaly": "異常検知",
   "insight.userInsight": "ユーザー分析",
+  "insight.dailySummary": "デイリーサマリー",
+  "insight.productivityTrend": "生産性トレンド",
+  "insight.userRecommendation": "ユーザー推奨",
   "insight.default": "インサイト",
 
   // Page: User Detail
@@ -347,17 +359,29 @@ const en: TranslationMap = {
   "page.insights.error": "Insight Generation Error",
   "page.insights.generationFailed": "Generation failed",
   "page.insights.apiKeyHint": "Make sure ANTHROPIC_API_KEY is set in .env.local",
+  "page.insights.apiKeySetup": "Set up ANTHROPIC_API_KEY",
+  "page.insights.apiKeySetupDesc":
+    "Add ANTHROPIC_API_KEY=your_key_here to your .env.local file",
   "page.insights.empty": "No insights yet",
   "page.insights.emptyHint":
     'Click the "Generate New Insight" button above to start AI analysis.',
   "page.insights.apiKeyNote": "* ANTHROPIC_API_KEY is required",
   "page.insights.reportTitle": "AI Analysis Report",
+  "page.insights.filterAll": "All",
+  "page.insights.typeLabel": "Type",
+  "page.insights.generateType": "Generate {type}",
+  "page.insights.userInsightTitle": "User Insight",
+  "page.insights.userIdPlaceholder": "Enter user ID",
+  "page.insights.generateUserInsight": "Generate",
 
   // Insight types
   "insight.weeklySummary": "Weekly Summary",
   "insight.costOptimization": "Cost Optimization",
   "insight.anomaly": "Anomaly Detection",
   "insight.userInsight": "User Analysis",
+  "insight.dailySummary": "Daily Summary",
+  "insight.productivityTrend": "Productivity Trend",
+  "insight.userRecommendation": "User Recommendation",
   "insight.default": "Insight",
 
   // Page: User Detail
@@ -535,17 +559,29 @@ const ko: TranslationMap = {
   "page.insights.generationFailed": "생성에 실패했습니다",
   "page.insights.apiKeyHint":
     "ANTHROPIC_API_KEY가 .env.local에 설정되어 있는지 확인하세요",
+  "page.insights.apiKeySetup": "ANTHROPIC_API_KEY를 설정하세요",
+  "page.insights.apiKeySetupDesc":
+    ".env.local 파일에 ANTHROPIC_API_KEY=your_key_here를 추가하세요",
   "page.insights.empty": "인사이트가 아직 없습니다",
   "page.insights.emptyHint":
     '위의 "새 인사이트 생성" 버튼을 눌러 AI 분석을 시작하세요.',
   "page.insights.apiKeyNote": "* ANTHROPIC_API_KEY 설정이 필요합니다",
   "page.insights.reportTitle": "AI 분석 보고서",
+  "page.insights.filterAll": "전체",
+  "page.insights.typeLabel": "유형",
+  "page.insights.generateType": "{type} 생성",
+  "page.insights.userInsightTitle": "사용자 인사이트",
+  "page.insights.userIdPlaceholder": "사용자 ID 입력",
+  "page.insights.generateUserInsight": "생성",
 
   // Insight types
   "insight.weeklySummary": "주간 요약",
   "insight.costOptimization": "비용 최적화",
   "insight.anomaly": "이상 감지",
   "insight.userInsight": "사용자 분석",
+  "insight.dailySummary": "데일리 요약",
+  "insight.productivityTrend": "생산성 트렌드",
+  "insight.userRecommendation": "사용자 추천",
   "insight.default": "인사이트",
 
   // Page: User Detail

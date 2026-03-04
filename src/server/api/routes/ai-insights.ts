@@ -2,13 +2,15 @@ import { Hono } from "hono";
 import { db } from "@/server/db";
 import { aiInsights } from "@/server/db/schema";
 import { desc, eq } from "drizzle-orm";
+import { parseLimit, parseInsightType } from "@/server/api/middleware/validate";
+import { aiRateLimit } from "@/server/api/middleware/rate-limit";
 
 export const aiInsightsRoute = new Hono();
 
 // Get latest insights
 aiInsightsRoute.get("/", async (c) => {
-  const limit = Number(c.req.query("limit") || "10");
-  const type = c.req.query("type");
+  const limit = parseLimit(c.req.query("limit"));
+  const type = parseInsightType(c.req.query("type"));
 
   const results = type
     ? await db
@@ -38,7 +40,8 @@ aiInsightsRoute.get("/latest", async (c) => {
 });
 
 // Generate new insight (requires ANTHROPIC_API_KEY)
-aiInsightsRoute.post("/generate", async (c) => {
+// Rate limited to 10 requests per minute
+aiInsightsRoute.post("/generate", aiRateLimit, async (c) => {
   try {
     const { generateWeeklyInsight } = await import(
       "@/server/services/ai-insight-generator"

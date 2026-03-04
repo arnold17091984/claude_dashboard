@@ -2,13 +2,13 @@ import { Hono } from "hono";
 import { db } from "@/server/db";
 import { events, dailySummary } from "@/server/db/schema";
 import { sql, count, sum, desc, gte, and } from "drizzle-orm";
+import { parsePeriod, periodToSince } from "@/server/api/middleware/validate";
 
 export const toolsRoute = new Hono();
 
 toolsRoute.get("/usage", async (c) => {
-  const period = c.req.query("period") || "30d";
-  const daysBack = period === "90d" ? 90 : period === "30d" ? 30 : 7;
-  const since = new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000).toISOString();
+  const period = parsePeriod(c.req.query("period") || "30d");
+  const since = periodToSince(period);
 
   const [allTools, skills, subagents, builtins, mcpTools] = await Promise.all([
     // 全ツール使用統計
@@ -110,11 +110,8 @@ toolsRoute.get("/usage", async (c) => {
 });
 
 toolsRoute.get("/trend", async (c) => {
-  const period = c.req.query("period") || "30d";
-  const daysBack = period === "90d" ? 90 : period === "30d" ? 30 : 7;
-  const sinceDate = new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .slice(0, 10);
+  const period = parsePeriod(c.req.query("period") || "30d");
+  const sinceDate = periodToSince(period).slice(0, 10);
 
   const trend = await db
     .select({

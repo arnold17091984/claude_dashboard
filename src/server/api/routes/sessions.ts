@@ -2,16 +2,22 @@ import { Hono } from "hono";
 import { db } from "@/server/db";
 import { sessions, users, events, tokenUsage } from "@/server/db/schema";
 import { sql, sum, count, desc, eq, gte, and } from "drizzle-orm";
+import {
+  parsePeriod,
+  periodToSince,
+  parsePagination,
+} from "@/server/api/middleware/validate";
 
 export const sessionsRoute = new Hono();
 
 sessionsRoute.get("/", async (c) => {
-  const page = parseInt(c.req.query("page") || "1", 10);
-  const limit = parseInt(c.req.query("limit") || "20", 10);
+  const { page, limit } = parsePagination(
+    c.req.query("page"),
+    c.req.query("limit")
+  );
   const offset = (page - 1) * limit;
-  const period = c.req.query("period") || "30d";
-  const daysBack = period === "90d" ? 90 : period === "30d" ? 30 : 7;
-  const since = new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000).toISOString();
+  const period = parsePeriod(c.req.query("period") || "30d");
+  const since = periodToSince(period);
 
   const [sessionList, totalCount] = await Promise.all([
     db

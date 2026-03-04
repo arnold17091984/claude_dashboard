@@ -2,13 +2,13 @@ import { Hono } from "hono";
 import { db } from "@/server/db";
 import { sessions, events, tokenUsage, users } from "@/server/db/schema";
 import { sql, count, sum, desc, eq, gte, and } from "drizzle-orm";
+import { parsePeriod, periodToSince } from "@/server/api/middleware/validate";
 
 export const projectsRoute = new Hono();
 
 projectsRoute.get("/", async (c) => {
-  const period = c.req.query("period") || "30d";
-  const daysBack = period === "90d" ? 90 : period === "30d" ? 30 : 7;
-  const since = new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000).toISOString();
+  const period = parsePeriod(c.req.query("period") || "30d");
+  const since = periodToSince(period);
 
   const projectStats = await db
     .select({
@@ -56,9 +56,8 @@ projectsRoute.get("/", async (c) => {
 
 projectsRoute.get("/:name", async (c) => {
   const projectName = decodeURIComponent(c.req.param("name"));
-  const period = c.req.query("period") || "30d";
-  const daysBack = period === "90d" ? 90 : period === "30d" ? 30 : 7;
-  const since = new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000).toISOString();
+  const period = parsePeriod(c.req.query("period") || "30d");
+  const since = periodToSince(period);
 
   const [projectSessions, toolStats, costStats] = await Promise.all([
     db

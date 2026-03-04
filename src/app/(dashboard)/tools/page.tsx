@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { Header } from "@/components/layout/header";
 import { ToolCategoryChart } from "@/components/dashboard/tool-category-chart";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -80,7 +80,7 @@ export default function ToolsPage() {
     toolCalls: { label: t("chart.toolCalls"), color: "var(--chart-1)" },
   };
 
-  useEffect(() => {
+  const fetchData = useCallback(() => {
     setLoading(true);
     Promise.all([
       fetch(`/api/v1/tools/usage?period=${period}`).then((r) => r.json()),
@@ -93,6 +93,10 @@ export default function ToolsPage() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [period]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const trendChartData = useMemo(
     () =>
@@ -108,6 +112,8 @@ export default function ToolsPage() {
       <Header
         title={t("page.tools.title")}
         description={t("page.tools.description")}
+        onRefresh={fetchData}
+        isRefreshing={loading}
       />
       <div className="dashboard-content">
         <div className="flex items-center justify-between">

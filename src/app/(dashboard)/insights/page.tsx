@@ -298,6 +298,8 @@ export default function InsightsPage() {
       <Header
         title={t("page.insights.title")}
         description={t("page.insights.description")}
+        onRefresh={fetchInsights}
+        isRefreshing={loading}
       />
       <div className="dashboard-content">
         {/* Header row */}

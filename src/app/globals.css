@@ -1049,6 +1049,113 @@
   }
 
   /* ----------------------------------------------------------
+     MOBILE BOTTOM NAVIGATION
+     Visible only on small screens (below md / 768px).
+     Uses the same sidebar colour tokens for visual consistency.
+     ---------------------------------------------------------- */
+
+  .bottom-nav {
+    display: none;  /* hidden on desktop — shown via media query below */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: var(--sidebar);
+    border-top: 1px solid var(--sidebar-border);
+    /* Safe area inset for notched phones */
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+  }
+
+  @media (max-width: 767px) {
+    .bottom-nav {
+      display: flex;
+      align-items: stretch;
+    }
+  }
+
+  .bottom-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.1875rem;   /* 3px */
+    padding: 0.5rem 0.25rem;
+    min-width: 0;
+    color: var(--muted-foreground);
+    transition-property: color, background-color;
+    transition-duration: var(--duration-fast);
+    transition-timing-function: var(--ease-out-expo);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .bottom-nav-item:hover {
+    color: var(--sidebar-foreground);
+    background: var(--sidebar-accent);
+  }
+
+  .bottom-nav-item--active {
+    color: var(--sidebar-accent-foreground);
+  }
+
+  .bottom-nav-icon {
+    width: 1.25rem;   /* 20px */
+    height: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .bottom-nav-label {
+    font-size: 0.5625rem;  /* 9px */
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  /* ----------------------------------------------------------
+     RESPONSIVE TABLE POLISH
+     Ensure all data tables are horizontally scrollable on
+     small screens and use tighter padding on mobile.
+     ---------------------------------------------------------- */
+
+  @media (max-width: 640px) {
+    .overflow-x-auto table th,
+    .overflow-x-auto table td {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+      font-size: 0.75rem;
+    }
+
+    /* On very small screens, hide lower-priority table columns tagged with data-hide-mobile */
+    [data-hide-mobile] {
+      display: none;
+    }
+  }
+
+  /* ----------------------------------------------------------
+     RESPONSIVE CHART LEGEND
+     Hide Recharts legends on very small screens (< 480px).
+     ---------------------------------------------------------- */
+
+  @media (max-width: 480px) {
+    .recharts-legend-wrapper {
+      display: none !important;
+    }
+
+    /* Reduce chart height on mobile to save vertical space */
+    .chart-card-body .recharts-responsive-container {
+      min-height: 0;
+    }
+  }
+
+  /* ----------------------------------------------------------
      SELECTION & HIGHLIGHT
      ---------------------------------------------------------- */
 

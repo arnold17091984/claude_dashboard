@@ -211,6 +211,7 @@ const ja: TranslationMap = {
   "notFound.title": "404 — ページが見つかりません",
   "notFound.description": "お探しのページは存在しないか、移動した可能性があります。",
   "notFound.goHome": "ダッシュボードへ戻る",
+
   // Page: Session Detail
   "page.sessionDetail.title": "セッション詳細",
   "page.sessionDetail.notFound": "セッションが見つかりません",
@@ -237,6 +238,26 @@ const ja: TranslationMap = {
   "page.sessionDetail.unknown": "不明",
   "page.sessionDetail.tool": "ツール",
   "page.sessionDetail.count": "使用回数",
+
+  // Header / Refresh
+  "header.refresh": "更新",
+  "header.autoRefresh": "自動更新",
+  "header.lastUpdated": "最終更新: {time}",
+  "header.refreshing": "更新中...",
+
+  // Breadcrumbs
+  "breadcrumb.home": "ホーム",
+
+  // Empty states
+  "empty.title": "データがありません",
+  "empty.description": "表示するデータがまだありません。",
+  "empty.hint": "データが取り込まれると、ここに表示されます。",
+
+  // KPI trends
+  "kpi.trend.up": "前期比 +{pct}%",
+  "kpi.trend.down": "前期比 -{pct}%",
+  "kpi.trend.neutral": "前期比 変化なし",
+  "kpi.vsLastPeriod": "前期比",
 };
 
 const en: TranslationMap = {
@@ -447,6 +468,7 @@ const en: TranslationMap = {
   "notFound.title": "404 — Page not found",
   "notFound.description": "The page you're looking for doesn't exist or has been moved.",
   "notFound.goHome": "Back to dashboard",
+
   // Page: Session Detail
   "page.sessionDetail.title": "Session Detail",
   "page.sessionDetail.notFound": "Session not found",
@@ -473,6 +495,26 @@ const en: TranslationMap = {
   "page.sessionDetail.unknown": "Unknown",
   "page.sessionDetail.tool": "Tool",
   "page.sessionDetail.count": "Count",
+
+  // Header / Refresh
+  "header.refresh": "Refresh",
+  "header.autoRefresh": "Auto Refresh",
+  "header.lastUpdated": "Updated: {time}",
+  "header.refreshing": "Refreshing...",
+
+  // Breadcrumbs
+  "breadcrumb.home": "Home",
+
+  // Empty states
+  "empty.title": "No data",
+  "empty.description": "No data to display yet.",
+  "empty.hint": "Data will appear here once it is ingested.",
+
+  // KPI trends
+  "kpi.trend.up": "+{pct}% vs last period",
+  "kpi.trend.down": "-{pct}% vs last period",
+  "kpi.trend.neutral": "No change vs last period",
+  "kpi.vsLastPeriod": "vs last period",
 };
 
 const ko: TranslationMap = {
@@ -684,6 +726,7 @@ const ko: TranslationMap = {
   "notFound.title": "404 — 페이지를 찾을 수 없습니다",
   "notFound.description": "찾으시는 페이지가 존재하지 않거나 이동되었습니다.",
   "notFound.goHome": "대시보드로 돌아가기",
+
   // Page: Session Detail
   "page.sessionDetail.title": "세션 상세",
   "page.sessionDetail.notFound": "세션을 찾을 수 없습니다",
@@ -710,6 +753,26 @@ const ko: TranslationMap = {
   "page.sessionDetail.unknown": "알 수 없음",
   "page.sessionDetail.tool": "도구",
   "page.sessionDetail.count": "사용 횟수",
+
+  // Header / Refresh
+  "header.refresh": "새로고침",
+  "header.autoRefresh": "자동 새로고침",
+  "header.lastUpdated": "업데이트: {time}",
+  "header.refreshing": "새로고침 중...",
+
+  // Breadcrumbs
+  "breadcrumb.home": "홈",
+
+  // Empty states
+  "empty.title": "데이터 없음",
+  "empty.description": "표시할 데이터가 아직 없습니다.",
+  "empty.hint": "데이터가 수집되면 여기에 표시됩니다.",
+
+  // KPI trends
+  "kpi.trend.up": "전기 대비 +{pct}%",
+  "kpi.trend.down": "전기 대비 -{pct}%",
+  "kpi.trend.neutral": "전기 대비 변화 없음",
+  "kpi.vsLastPeriod": "전기 대비",
 };
 
 export const translations: Record<Locale, TranslationMap> = { ja, en, ko };

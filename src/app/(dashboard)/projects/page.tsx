@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Header } from "@/components/layout/header";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -73,7 +73,7 @@ export default function ProjectsPage() {
     sessionCount: { label: t("page.projects.sessionCount"), color: "var(--chart-1)" },
   };
 
-  useEffect(() => {
+  const fetchData = useCallback(() => {
     setLoading(true);
     fetch(`/api/v1/projects?period=${period}`)
       .then((r) => r.json())
@@ -81,6 +81,10 @@ export default function ProjectsPage() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [period]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const totalCost = data?.projects.reduce((s, p) => s + p.cost, 0) || 0;
   const totalSessions = data?.projects.reduce((s, p) => s + p.sessionCount, 0) || 0;
@@ -95,6 +99,8 @@ export default function ProjectsPage() {
       <Header
         title={t("page.projects.title")}
         description={t("page.projects.description")}
+        onRefresh={fetchData}
+        isRefreshing={loading}
       />
       <div className="dashboard-content">
         <div className="flex flex-wrap items-center justify-between gap-3">

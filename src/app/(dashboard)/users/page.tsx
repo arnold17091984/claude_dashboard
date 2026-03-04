@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent } from "@/components/ui/card";
@@ -48,7 +48,8 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const { t } = useI18n();
 
-  useEffect(() => {
+  const fetchData = useCallback(() => {
+    setLoading(true);
     fetch("/api/v1/users")
       .then((r) => r.json())
       .then(setData)
@@ -56,11 +57,17 @@ export default function UsersPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
   return (
     <>
       <Header
         title={t("page.users.title")}
         description={t("page.users.description")}
+        onRefresh={fetchData}
+        isRefreshing={loading}
       />
       <div className="dashboard-content">
         <div className="flex items-center justify-between">

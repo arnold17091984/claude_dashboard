@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Header } from "@/components/layout/header";
 import { ToolCategoryChart } from "@/components/dashboard/tool-category-chart";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -94,11 +94,14 @@ export default function ToolsPage() {
       .finally(() => setLoading(false));
   }, [period]);
 
-  const trendChartData =
-    trendData?.trend.map((r) => ({
-      date: r.date.slice(5),
-      toolCalls: Number(r.toolCalls || 0),
-    })) || [];
+  const trendChartData = useMemo(
+    () =>
+      trendData?.trend.map((r) => ({
+        date: r.date.slice(5),
+        toolCalls: Number(r.toolCalls || 0),
+      })) || [],
+    [trendData?.trend]
+  );
 
   return (
     <>
@@ -132,6 +135,7 @@ export default function ToolsPage() {
           <div className="space-y-6">
             {/* Category charts */}
             <ToolCategoryChart
+              key={`categories-${period}`}
               categorySummary={toolsData?.categorySummary || []}
               topTools={toolsData?.allTools || []}
             />

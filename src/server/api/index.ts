@@ -1,8 +1,10 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { compress } from "hono/compress";
 import { securityHeaders } from "./middleware/security";
 import { requestLogger } from "./middleware/request-logger";
 import { generalRateLimit, ingestRateLimit } from "./middleware/rate-limit";
+import { timingMiddleware } from "./middleware/timing";
 import { overviewRoute } from "./routes/overview";
 import { ingestRoute } from "./routes/ingest";
 import { rankingRoute } from "./routes/ranking";
@@ -26,10 +28,16 @@ app.use("*", requestLogger);
 // 2. Security headers — CSP, HSTS, X-Frame-Options, etc.
 app.use("*", securityHeaders);
 
-// 3. CORS
+// 3. Compress JSON responses (gzip / deflate based on Accept-Encoding)
+app.use("*", compress());
+
+// 4. CORS
 app.use("*", cors());
 
-// 4. Rate limiting — tiered by route
+// 5. Request duration logging — slow queries (>500ms) are emitted as WARN
+app.use("*", timingMiddleware);
+
+// 6. Rate limiting — tiered by route
 //    Ingest routes get a separate, more generous limit (100/min).
 //    The ingest route itself also applies apiKeyAuth internally.
 app.use("/ingest/*", ingestRateLimit);

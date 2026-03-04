@@ -3,11 +3,19 @@ import { db } from "@/server/db";
 import { events, dailySummary } from "@/server/db/schema";
 import { sql, count, sum, desc, gte, and } from "drizzle-orm";
 import { parsePeriod, periodToSince } from "@/server/api/middleware/validate";
+import { cache, TTL, toolsUsageKey, toolsTrendKey } from "@/server/lib/cache";
 
 export const toolsRoute = new Hono();
 
 toolsRoute.get("/usage", async (c) => {
   const period = parsePeriod(c.req.query("period") || "30d");
+  const cacheKey = toolsUsageKey(period);
+
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    return c.json(cached);
+  }
+
   const since = periodToSince(period);
 
   const [allTools, skills, subagents, builtins, mcpTools] = await Promise.all([
@@ -98,7 +106,7 @@ toolsRoute.get("/usage", async (c) => {
     { category: "mcp", label: "MCP", total: totalMcp },
   ];
 
-  return c.json({
+  const result = {
     categorySummary,
     allTools,
     skills,
@@ -106,11 +114,21 @@ toolsRoute.get("/usage", async (c) => {
     builtins,
     mcpTools,
     period,
-  });
+  };
+
+  cache.set(cacheKey, result, TTL.AGGREGATIONS);
+  return c.json(result);
 });
 
 toolsRoute.get("/trend", async (c) => {
   const period = parsePeriod(c.req.query("period") || "30d");
+  const cacheKey = toolsTrendKey(period);
+
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    return c.json(cached);
+  }
+
   const sinceDate = periodToSince(period).slice(0, 10);
 
   const trend = await db
@@ -124,5 +142,7 @@ toolsRoute.get("/trend", async (c) => {
     .groupBy(dailySummary.date)
     .orderBy(dailySummary.date);
 
-  return c.json({ trend, period });
+  const result = { trend, period };
+  cache.set(cacheKey, result, TTL.AGGREGATIONS);
+  return c.json(result);
 });

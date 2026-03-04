@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useMemo } from "react";
 import {
   Area,
   AreaChart,
@@ -37,28 +38,39 @@ function shortModelName(model: string): string {
   return model.split("-").slice(0, 2).join("-");
 }
 
-export function CostTrendChart({ trend, models }: CostTrendChartProps) {
+export const CostTrendChart = memo(function CostTrendChart({
+  trend,
+  models,
+}: CostTrendChartProps) {
   const { t } = useI18n();
 
-  const chartConfig = Object.fromEntries(
-    models.map((model, idx) => [
-      model,
-      {
-        label: shortModelName(model),
-        color: MODEL_COLORS[idx % MODEL_COLORS.length],
-      },
-    ])
+  const chartConfig = useMemo(
+    () =>
+      Object.fromEntries(
+        models.map((model, idx) => [
+          model,
+          {
+            label: shortModelName(model),
+            color: MODEL_COLORS[idx % MODEL_COLORS.length],
+          },
+        ])
+      ),
+    [models]
   );
 
-  const chartData = trend.map((row) => {
-    const entry: Record<string, number | string> = {
-      date: String(row.date).slice(5),
-    };
-    for (const model of models) {
-      entry[model] = Number(row[model] || 0);
-    }
-    return entry;
-  });
+  const chartData = useMemo(
+    () =>
+      trend.map((row) => {
+        const entry: Record<string, number | string> = {
+          date: String(row.date).slice(5),
+        };
+        for (const model of models) {
+          entry[model] = Number(row[model] || 0);
+        }
+        return entry;
+      }),
+    [trend, models]
+  );
 
   if (chartData.length === 0) {
     return (
@@ -117,4 +129,4 @@ export function CostTrendChart({ trend, models }: CostTrendChartProps) {
       </div>
     </div>
   );
-}
+});

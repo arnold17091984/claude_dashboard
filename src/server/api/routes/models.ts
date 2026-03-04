@@ -3,11 +3,19 @@ import { db } from "@/server/db";
 import { tokenUsage } from "@/server/db/schema";
 import { sql, sum, count, desc, gte } from "drizzle-orm";
 import { parsePeriod, periodToSince } from "@/server/api/middleware/validate";
+import { cache, TTL, modelsUsageKey, modelsCostKey } from "@/server/lib/cache";
 
 export const modelsRoute = new Hono();
 
 modelsRoute.get("/usage", async (c) => {
   const period = parsePeriod(c.req.query("period") || "30d");
+  const cacheKey = modelsUsageKey(period);
+
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    return c.json(cached);
+  }
+
   const since = periodToSince(period);
 
   const usage = await db
@@ -31,7 +39,7 @@ modelsRoute.get("/usage", async (c) => {
     0
   );
 
-  return c.json({
+  const result = {
     usage: usage.map((u) => ({
       model: u.model,
       inputTokens: Number(u.inputTokens || 0),
@@ -45,11 +53,21 @@ modelsRoute.get("/usage", async (c) => {
     totalCost,
     totalTokens,
     period,
-  });
+  };
+
+  cache.set(cacheKey, result, TTL.AGGREGATIONS);
+  return c.json(result);
 });
 
 modelsRoute.get("/cost", async (c) => {
   const period = parsePeriod(c.req.query("period") || "30d");
+  const cacheKey = modelsCostKey(period);
+
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    return c.json(cached);
+  }
+
   const since = periodToSince(period);
 
   // 日別 x モデル別コスト
@@ -93,5 +111,7 @@ modelsRoute.get("/cost", async (c) => {
     return record;
   });
 
-  return c.json({ trend, models, period });
+  const result = { trend, models, period };
+  cache.set(cacheKey, result, TTL.AGGREGATIONS);
+  return c.json(result);
 });

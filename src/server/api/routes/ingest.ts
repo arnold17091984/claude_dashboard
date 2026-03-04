@@ -15,6 +15,7 @@ import { sessions, events, tokenUsage, users, dailySummary } from "@/server/db/s
 import { eq, and, sql, count, sum, desc } from "drizzle-orm";
 import { estimateCost } from "@/server/lib/constants";
 import { apiKeyAuth } from "@/server/api/middleware/auth";
+import { invalidateAll } from "@/server/lib/cache";
 
 // ---------------------------------------------------------------------------
 // Zod schemas
@@ -418,6 +419,9 @@ ingestRoute.post("/session", async (c) => {
       activeMinutes: sessionActiveMinutes,
     });
 
+    // Invalidate cached aggregations so dashboards see fresh data
+    invalidateAll();
+
     return c.json({
       ok: true,
       sessionId: session.sessionId,
@@ -472,6 +476,9 @@ ingestRoute.post("/events", async (c) => {
         timestamp: e.timestamp,
       }))
     );
+
+    // Invalidate cached aggregations so dashboards see fresh data
+    invalidateAll();
 
     return c.json({ ok: true, eventsInserted: evts.length });
   } catch (err) {

@@ -7,6 +7,7 @@ import {
   periodToSince,
   parseSortBy,
 } from "@/server/api/middleware/validate";
+import { cache, TTL, rankingKey } from "@/server/lib/cache";
 
 const RANKING_SORT_OPTIONS = ["cost", "sessions", "toolCalls"] as const;
 
@@ -19,6 +20,13 @@ rankingRoute.get("/", async (c) => {
     RANKING_SORT_OPTIONS,
     "cost"
   );
+  const cacheKey = rankingKey(period, sortBy);
+
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    return c.json(cached);
+  }
+
   const since = periodToSince(period).slice(0, 10);
 
   const aggregated = await db
@@ -73,7 +81,7 @@ rankingRoute.get("/", async (c) => {
   }
 
   const ranking = aggregated
-    .map((row, idx) => {
+    .map((row) => {
       const user = userMap.get(row.userId);
       return {
         userId: row.userId,
@@ -96,5 +104,7 @@ rankingRoute.get("/", async (c) => {
     })
     .map((row, idx) => ({ ...row, rank: idx + 1 }));
 
-  return c.json({ ranking, period, sortBy });
+  const result = { ranking, period, sortBy };
+  cache.set(cacheKey, result, TTL.RANKING);
+  return c.json(result);
 });

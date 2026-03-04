@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Header } from "@/components/layout/header";
 import { KPICards } from "./kpi-cards";
 import { ActivityChart } from "./activity-chart";
@@ -65,6 +65,18 @@ export function DashboardPage() {
       .finally(() => setLoading(false));
   }, [period]);
 
+  // Derive filtered project list once per render (avoids repeated inline filter)
+  const filteredProjects = useMemo(
+    () => data?.topProjects?.filter((p) => p.projectName) ?? [],
+    [data?.topProjects]
+  );
+
+  // Pre-compute max count for progress bar scaling
+  const maxProjectCount = useMemo(
+    () => filteredProjects[0]?.count || 1,
+    [filteredProjects]
+  );
+
   return (
     <>
       <Header title={t("page.overview.title")} description={t("page.overview.description")} />
@@ -95,20 +107,20 @@ export function DashboardPage() {
             {/* Charts row 1 */}
             <div className="chart-grid-2">
               <div className="chart-enter">
-                <ActivityChart data={data.dailyActivity} />
+                <ActivityChart key={`activity-${period}`} data={data.dailyActivity} />
               </div>
               <div className="chart-enter">
-                <ToolUsageChart data={data.topTools} />
+                <ToolUsageChart key={`tools-${period}`} data={data.topTools} />
               </div>
             </div>
 
             {/* Charts row 2 */}
             <div className="chart-grid-2">
               <div className="chart-enter">
-                <ModelCostChart data={data.topModels} />
+                <ModelCostChart key={`models-${period}`} data={data.topModels} />
               </div>
 
-              {data.topProjects && data.topProjects.length > 0 && (
+              {filteredProjects.length > 0 && (
                 <div className="chart-card chart-enter">
                   <div className="chart-card-header">
                     <div>
@@ -123,31 +135,28 @@ export function DashboardPage() {
                   </div>
                   <div className="chart-card-body">
                     <div className="space-y-3">
-                      {data.topProjects
-                        .filter((p) => p.projectName)
-                        .map((project) => {
-                          const name = formatProjectName(project.projectName!);
-                          const maxCount = data.topProjects![0]?.count || 1;
-                          const pct = (project.count / maxCount) * 100;
-                          return (
-                            <div key={project.projectName} className="space-y-1.5">
-                              <div className="flex items-center justify-between gap-2">
-                                <span className="text-body font-medium truncate max-w-[200px]">
-                                  {name}
-                                </span>
-                                <Badge variant="secondary" className="shrink-0">
-                                  {project.count}
-                                </Badge>
-                              </div>
-                              <div className="progress-bar-track">
-                                <div
-                                  className="progress-bar-fill"
-                                  style={{ width: `${pct}%` }}
-                                />
-                              </div>
+                      {filteredProjects.map((project) => {
+                        const name = formatProjectName(project.projectName!);
+                        const pct = (project.count / maxProjectCount) * 100;
+                        return (
+                          <div key={project.projectName} className="space-y-1.5">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-body font-medium truncate max-w-[200px]">
+                                {name}
+                              </span>
+                              <Badge variant="secondary" className="shrink-0">
+                                {project.count}
+                              </Badge>
                             </div>
-                          );
-                        })}
+                            <div className="progress-bar-track">
+                              <div
+                                className="progress-bar-fill"
+                                style={{ width: `${pct}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>

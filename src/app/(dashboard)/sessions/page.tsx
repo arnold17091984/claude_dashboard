@@ -133,8 +133,9 @@ export default function SessionsPage() {
                     </p>
                   ) : (
                     data?.sessions.map((session) => (
-                      <div
+                      <Link
                         key={session.id}
+                        href={`/sessions/${session.id}`}
                         className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-muted/30"
                       >
                         <div className="min-w-0 flex-1">
@@ -156,13 +157,14 @@ export default function SessionsPage() {
                               <Clock className="h-3 w-3" />
                               {formatDate(session.startedAt, dateLocale)}
                             </span>
-                            {session.durationMs && (
+                            {!!session.durationMs && (
                               <span>{formatDuration(session.durationMs)}</span>
                             )}
                             {session.displayName && (
                               <Link
                                 href={`/users/${session.userId}`}
                                 className="flex items-center gap-1 hover:underline"
+                                onClick={(e) => e.stopPropagation()}
                               >
                                 <User className="h-3 w-3" />
                                 {session.displayName}
@@ -181,7 +183,7 @@ export default function SessionsPage() {
                             <span>{session.toolCallCount || 0}</span>
                           </div>
                         </div>
-                      </div>
+                      </Link>
                     ))
                   )}
                 </div>

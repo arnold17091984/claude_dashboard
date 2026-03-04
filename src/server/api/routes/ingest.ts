@@ -12,7 +12,7 @@ import { Hono } from "hono";
 import { z } from "zod/v4";
 import { db } from "@/server/db";
 import { sessions, events, tokenUsage, users, dailySummary } from "@/server/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql, count, sum, desc } from "drizzle-orm";
 import { estimateCost } from "@/server/lib/constants";
 import { apiKeyAuth } from "@/server/api/middleware/auth";
 
@@ -111,8 +111,14 @@ async function upsertDailySummary(
     cacheReadTokens?: number;
     cacheCreationTokens?: number;
     costUsd?: number;
+    activeMinutes?: number;
   }
 ): Promise<void> {
+  // After writing numeric deltas, recompute derived fields (primary_model,
+  // top_tool, top_project) directly from the raw tables so the summary stays
+  // accurate regardless of the order events arrive.
+  const derived = await computeDerivedFields(userId, date);
+
   // Attempt to read existing row
   const existing = await db
     .select()
@@ -132,6 +138,10 @@ async function upsertDailySummary(
       totalCacheReadTokens: delta.cacheReadTokens ?? 0,
       totalCacheCreationTokens: delta.cacheCreationTokens ?? 0,
       estimatedCostUsd: delta.costUsd ?? 0,
+      activeMinutes: delta.activeMinutes ?? derived.activeMinutes,
+      primaryModel: derived.primaryModel,
+      topTool: derived.topTool,
+      topProject: derived.topProject,
     });
   } else {
     const row = existing[0];
@@ -152,11 +162,117 @@ async function upsertDailySummary(
           (delta.cacheCreationTokens ?? 0),
         estimatedCostUsd:
           (row.estimatedCostUsd ?? 0) + (delta.costUsd ?? 0),
+        // activeMinutes: increment by the session's contribution, then refresh
+        // derived fields from raw data so they always reflect reality.
+        activeMinutes: (row.activeMinutes ?? 0) + (delta.activeMinutes ?? 0),
+        primaryModel: derived.primaryModel ?? row.primaryModel,
+        topTool: derived.topTool ?? row.topTool,
+        topProject: derived.topProject ?? row.topProject,
       })
       .where(
         and(eq(dailySummary.userId, userId), eq(dailySummary.date, date))
       );
   }
+}
+
+// ---------------------------------------------------------------------------
+// Compute derived fields (primary_model, top_tool, top_project) from raw data
+// ---------------------------------------------------------------------------
+
+interface DerivedFields {
+  primaryModel: string | null;
+  topTool: string | null;
+  topProject: string | null;
+  activeMinutes: number;
+}
+
+async function computeDerivedFields(
+  userId: string,
+  date: string
+): Promise<DerivedFields> {
+  const dateStart = `${date}T00:00:00.000Z`;
+  const dateEnd = `${date}T23:59:59.999Z`;
+
+  // Primary model: the model with most output tokens on this date
+  const modelRows = await db
+    .select({
+      model: tokenUsage.model,
+      outputTokens: sum(tokenUsage.outputTokens),
+    })
+    .from(tokenUsage)
+    .where(
+      and(
+        eq(tokenUsage.userId, userId),
+        sql`${tokenUsage.timestamp} >= ${dateStart}`,
+        sql`${tokenUsage.timestamp} <= ${dateEnd}`
+      )
+    )
+    .groupBy(tokenUsage.model)
+    .orderBy(desc(sum(tokenUsage.outputTokens)))
+    .limit(1);
+
+  const primaryModel = modelRows[0]?.model ?? null;
+
+  // Top tool: the tool called most often on this date
+  const toolRows = await db
+    .select({
+      toolName: events.toolName,
+      cnt: count(),
+    })
+    .from(events)
+    .where(
+      and(
+        eq(events.userId, userId),
+        sql`${events.timestamp} >= ${dateStart}`,
+        sql`${events.timestamp} <= ${dateEnd}`,
+        sql`${events.toolName} IS NOT NULL`
+      )
+    )
+    .groupBy(events.toolName)
+    .orderBy(desc(count()))
+    .limit(1);
+
+  const topTool = toolRows[0]?.toolName ?? null;
+
+  // Top project: the project with the most sessions on this date
+  const projectRows = await db
+    .select({
+      projectName: sessions.projectName,
+      cnt: count(),
+    })
+    .from(sessions)
+    .where(
+      and(
+        eq(sessions.userId, userId),
+        sql`${sessions.startedAt} >= ${dateStart}`,
+        sql`${sessions.startedAt} <= ${dateEnd}`,
+        sql`${sessions.projectName} IS NOT NULL`
+      )
+    )
+    .groupBy(sessions.projectName)
+    .orderBy(desc(count()))
+    .limit(1);
+
+  const topProject = projectRows[0]?.projectName ?? null;
+
+  // Active minutes: sum of session durations on this date (in minutes)
+  const durationRows = await db
+    .select({
+      totalMs: sum(sessions.durationMs),
+    })
+    .from(sessions)
+    .where(
+      and(
+        eq(sessions.userId, userId),
+        sql`${sessions.startedAt} >= ${dateStart}`,
+        sql`${sessions.startedAt} <= ${dateEnd}`
+      )
+    );
+
+  const totalMs = Number(durationRows[0]?.totalMs ?? 0);
+  const activeMinutes = Math.round(totalMs / 60_000);
+
+  return { primaryModel, topTool, topProject, activeMinutes };
 }
 
 // ---------------------------------------------------------------------------
@@ -283,6 +399,13 @@ ingestRoute.post("/session", async (c) => {
         )
       : 0;
 
+    // Convert session durationMs to active minutes for the daily summary delta.
+    // The full recompute in upsertDailySummary will recalculate from raw data,
+    // but we still provide the delta so the initial insert is accurate.
+    const sessionActiveMinutes = session.durationMs
+      ? Math.round(session.durationMs / 60_000)
+      : 0;
+
     await upsertDailySummary(session.userId, date, {
       sessionCount: existingSession.length === 0 ? 1 : 0,
       messageCount: session.messageCount,
@@ -292,6 +415,7 @@ ingestRoute.post("/session", async (c) => {
       cacheReadTokens: totalUsage?.cacheReadInputTokens,
       cacheCreationTokens: totalUsage?.cacheCreationInputTokens,
       costUsd: totalCost,
+      activeMinutes: sessionActiveMinutes,
     });
 
     return c.json({

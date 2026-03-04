@@ -9,6 +9,7 @@
     "lint": "eslint",
     "db:seed": "tsx scripts/seed.ts",
     "db:backfill": "tsx scripts/backfill-transcripts.ts",
+    "db:repair": "tsx scripts/repair-daily-summary.ts",
     "db:migrate": "drizzle-kit push",
     "postinstall": "node scripts/patch-next.js",
     "test": "vitest run",

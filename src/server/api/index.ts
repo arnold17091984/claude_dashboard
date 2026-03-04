@@ -9,6 +9,7 @@ import { modelsRoute } from "./routes/models";
 import { sessionsRoute } from "./routes/sessions";
 import { aiInsightsRoute } from "./routes/ai-insights";
 import { projectsRoute } from "./routes/projects";
+import { healthRoute } from "./routes/health";
 
 const app = new Hono().basePath("/api/v1");
 
@@ -23,9 +24,10 @@ app.route("/models", modelsRoute);
 app.route("/sessions", sessionsRoute);
 app.route("/ai-insights", aiInsightsRoute);
 app.route("/projects", projectsRoute);
+app.route("/health", healthRoute);
 
-// Health check
-app.get("/health", (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }));
+// Basic liveness check (kept for backwards-compatibility)
+app.get("/ping", (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }));
 
 export default app;
 export type AppType = typeof app;

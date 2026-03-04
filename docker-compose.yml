@@ -19,29 +19,25 @@ services:
     # required variables visible without inspecting the .env file.
     environment:
       NODE_ENV: production
-      # DATABASE_URL should point to a path inside the /app/data volume so the
-      # SQLite file is persisted across container restarts.
+      # DATABASE_URL must point to a path inside /app/data so the SQLite file
+      # is persisted via the bind-mount volume defined below.
       DATABASE_URL: ${DATABASE_URL:-/app/data/dashboard.db}
       DASHBOARD_API_KEY: ${DASHBOARD_API_KEY}
       # ANTHROPIC_API_KEY is optional; omit or leave blank if not using AI features.
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
 
     volumes:
-      # Named volume keeps the SQLite database across container rebuilds and
-      # restarts. Using a named volume (rather than a bind-mount) avoids
-      # permission issues on Linux where the host uid/gid may differ from the
-      # container's nextjs user (uid 1001).
-      # For development or when direct file access is needed, replace with:
-      #   - ./data:/app/data
-      - dashboard_data:/app/data
+      # Bind-mount keeps the SQLite database on the host so it survives container
+      # rebuilds and restarts and can be inspected or backed up directly.
+      # The ./data directory is created automatically by Docker Compose if absent.
+      - ./data:/app/data
 
     healthcheck:
-      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      test:
+        - "CMD-SHELL"
+        - |
+          node -e "require('http').get('http://localhost:3000/api/v1/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-
-volumes:
-  dashboard_data:
-    driver: local

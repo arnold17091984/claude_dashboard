@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Header } from "@/components/layout/header";
 import { ModelCostChart } from "@/components/dashboard/model-cost-chart";
 import { CostTrendChart } from "@/components/dashboard/cost-trend-chart";
@@ -87,13 +87,16 @@ export default function ModelsPage() {
       .finally(() => setLoading(false));
   }, [period]);
 
-  const pieData =
-    usageData?.usage.map((u) => ({
-      model: u.model,
-      inputTokens: u.inputTokens,
-      outputTokens: u.outputTokens,
-      cost: u.cost,
-    })) || [];
+  const pieData = useMemo(
+    () =>
+      usageData?.usage.map((u) => ({
+        model: u.model,
+        inputTokens: u.inputTokens,
+        outputTokens: u.outputTokens,
+        cost: u.cost,
+      })) || [],
+    [usageData?.usage]
+  );
 
   return (
     <>
@@ -155,7 +158,7 @@ export default function ModelsPage() {
 
             {/* Pie chart + cost efficiency table */}
             <div className="grid gap-4 md:grid-cols-2">
-              <ModelCostChart data={pieData} />
+              <ModelCostChart key={`pie-${period}`} data={pieData} />
 
               <Card>
                 <CardHeader>
@@ -209,6 +212,7 @@ export default function ModelsPage() {
 
             {/* Daily cost trend */}
             <CostTrendChart
+              key={`trend-${period}`}
               trend={costData?.trend || []}
               models={costData?.models || []}
             />

@@ -2,11 +2,19 @@ import { Hono } from "hono";
 import { db } from "@/server/db";
 import { sessions, events, tokenUsage, dailySummary, users } from "@/server/db/schema";
 import { sql, count, sum, desc, eq, gte } from "drizzle-orm";
+import { cache, TTL, overviewKey } from "@/server/lib/cache";
 
 export const overviewRoute = new Hono();
 
 overviewRoute.get("/", async (c) => {
   const period = c.req.query("period") || "7d";
+  const cacheKey = overviewKey(period);
+
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    return c.json(cached);
+  }
+
   const daysBack = period === "30d" ? 30 : period === "90d" ? 90 : 7;
   const since = new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000).toISOString();
 
@@ -95,7 +103,7 @@ overviewRoute.get("/", async (c) => {
       .limit(8),
   ]);
 
-  return c.json({
+  const result = {
     kpi: {
       totalUsers: totalUsers[0]?.count || 0,
       totalSessions: totalSessions[0]?.count || 0,
@@ -110,5 +118,8 @@ overviewRoute.get("/", async (c) => {
     topModels,
     topProjects,
     period,
-  });
+  };
+
+  cache.set(cacheKey, result, TTL.OVERVIEW);
+  return c.json(result);
 });

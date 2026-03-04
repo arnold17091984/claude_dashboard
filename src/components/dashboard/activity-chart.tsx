@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useMemo } from "react";
 import {
   Area,
   AreaChart,
@@ -23,19 +24,30 @@ interface DailyActivity {
   cost: number | null;
 }
 
-export function ActivityChart({ data }: { data: DailyActivity[] }) {
+export const ActivityChart = memo(function ActivityChart({
+  data,
+}: {
+  data: DailyActivity[];
+}) {
   const { t } = useI18n();
 
-  const chartConfig = {
-    sessions: { label: t("chart.sessions"), color: "var(--chart-1)" },
-    toolCalls: { label: t("chart.toolCalls"), color: "var(--chart-3)" },
-  };
+  const chartConfig = useMemo(
+    () => ({
+      sessions: { label: t("chart.sessions"), color: "var(--chart-1)" },
+      toolCalls: { label: t("chart.toolCalls"), color: "var(--chart-3)" },
+    }),
+    [t]
+  );
 
-  const chartData = data.map((d) => ({
-    date: d.date,
-    sessions: Number(d.sessions || 0),
-    toolCalls: Number(d.toolCalls || 0),
-  }));
+  const chartData = useMemo(
+    () =>
+      data.map((d) => ({
+        date: d.date,
+        sessions: Number(d.sessions || 0),
+        toolCalls: Number(d.toolCalls || 0),
+      })),
+    [data]
+  );
 
   return (
     <div className="chart-card">
@@ -86,4 +98,4 @@ export function ActivityChart({ data }: { data: DailyActivity[] }) {
       </div>
     </div>
   );
-}
+});

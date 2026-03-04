@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { compress } from "hono/compress";
 import { overviewRoute } from "./routes/overview";
 import { ingestRoute } from "./routes/ingest";
 import { rankingRoute } from "./routes/ranking";
@@ -9,10 +10,18 @@ import { modelsRoute } from "./routes/models";
 import { sessionsRoute } from "./routes/sessions";
 import { aiInsightsRoute } from "./routes/ai-insights";
 import { projectsRoute } from "./routes/projects";
+import { timingMiddleware } from "./middleware/timing";
 
 const app = new Hono().basePath("/api/v1");
 
+// Compress JSON responses (gzip / deflate based on Accept-Encoding)
+app.use("*", compress());
+
+// CORS for browser clients
 app.use("*", cors());
+
+// Request duration logging — slow queries (>500ms) are emitted as WARN
+app.use("*", timingMiddleware);
 
 app.route("/overview", overviewRoute);
 app.route("/ingest", ingestRoute);

@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useMemo } from "react";
 import { Bar, BarChart, XAxis, YAxis, CartesianGrid, Cell } from "recharts";
 import {
   ChartContainer,
@@ -22,19 +23,30 @@ const BAR_COLORS = [
   "var(--chart-6)",
 ];
 
-export function ToolUsageChart({ data }: { data: ToolUsage[] }) {
+export const ToolUsageChart = memo(function ToolUsageChart({
+  data,
+}: {
+  data: ToolUsage[];
+}) {
   const { t } = useI18n();
 
-  const chartConfig = {
-    count: { label: t("chart.usageCount"), color: "var(--chart-1)" },
-  };
+  const chartConfig = useMemo(
+    () => ({
+      count: { label: t("chart.usageCount"), color: "var(--chart-1)" },
+    }),
+    [t]
+  );
 
-  const chartData = data
-    .filter((d) => d.toolName)
-    .map((d) => ({
-      name: d.toolName!,
-      count: d.count,
-    }));
+  const chartData = useMemo(
+    () =>
+      data
+        .filter((d) => d.toolName)
+        .map((d) => ({
+          name: d.toolName!,
+          count: d.count,
+        })),
+    [data]
+  );
 
   return (
     <div className="chart-card">
@@ -75,4 +87,4 @@ export function ToolUsageChart({ data }: { data: ToolUsage[] }) {
       </div>
     </div>
   );
-}
+});

@@ -2,12 +2,20 @@ import { Hono } from "hono";
 import { db } from "@/server/db";
 import { users, dailySummary } from "@/server/db/schema";
 import { sql, sum, desc, asc, eq, gte, and } from "drizzle-orm";
+import { cache, TTL, rankingKey } from "@/server/lib/cache";
 
 export const rankingRoute = new Hono();
 
 rankingRoute.get("/", async (c) => {
   const period = c.req.query("period") || "7d";
   const sortBy = c.req.query("sortBy") || "cost";
+  const cacheKey = rankingKey(period, sortBy);
+
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    return c.json(cached);
+  }
+
   const daysBack = period === "90d" ? 90 : period === "30d" ? 30 : 7;
   const since = new Date(Date.now() - daysBack * 24 * 60 * 60 * 1000)
     .toISOString()
@@ -65,7 +73,7 @@ rankingRoute.get("/", async (c) => {
   }
 
   const ranking = aggregated
-    .map((row, idx) => {
+    .map((row) => {
       const user = userMap.get(row.userId);
       return {
         userId: row.userId,
@@ -88,5 +96,7 @@ rankingRoute.get("/", async (c) => {
     })
     .map((row, idx) => ({ ...row, rank: idx + 1 }));
 
-  return c.json({ ranking, period, sortBy });
+  const result = { ranking, period, sortBy };
+  cache.set(cacheKey, result, TTL.RANKING);
+  return c.json(result);
 });

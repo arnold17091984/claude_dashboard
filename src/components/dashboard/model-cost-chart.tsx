@@ -1,6 +1,7 @@
 "use client";
 
-import { Cell, Pie, PieChart, Legend } from "recharts";
+import { memo, useMemo } from "react";
+import { Cell, Pie, PieChart } from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
@@ -30,22 +31,34 @@ function shortModelName(model: string): string {
   return model.split("-").slice(0, 2).join("-");
 }
 
-export function ModelCostChart({ data }: { data: ModelUsage[] }) {
+export const ModelCostChart = memo(function ModelCostChart({
+  data,
+}: {
+  data: ModelUsage[];
+}) {
   const { t } = useI18n();
 
-  const chartData = data
-    .filter((d) => d.model)
-    .map((d) => ({
-      name: shortModelName(d.model!),
-      cost: Number(d.cost || 0),
-      tokens: Number(d.inputTokens || 0) + Number(d.outputTokens || 0),
-    }));
+  const chartData = useMemo(
+    () =>
+      data
+        .filter((d) => d.model)
+        .map((d) => ({
+          name: shortModelName(d.model!),
+          cost: Number(d.cost || 0),
+          tokens: Number(d.inputTokens || 0) + Number(d.outputTokens || 0),
+        })),
+    [data]
+  );
 
-  const chartConfig = Object.fromEntries(
-    chartData.map((d, i) => [
-      d.name,
-      { label: d.name, color: COLORS[i % COLORS.length] },
-    ])
+  const chartConfig = useMemo(
+    () =>
+      Object.fromEntries(
+        chartData.map((d, i) => [
+          d.name,
+          { label: d.name, color: COLORS[i % COLORS.length] },
+        ])
+      ),
+    [chartData]
   );
 
   return (
@@ -86,4 +99,4 @@ export function ModelCostChart({ data }: { data: ModelUsage[] }) {
       </div>
     </div>
   );
-}
+});

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Header } from "@/components/layout/header";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   Clock,
   FolderGit2,
@@ -75,7 +76,7 @@ export default function SessionsPage() {
   const [loading, setLoading] = useState(true);
   const { t, dateLocale } = useI18n();
 
-  useEffect(() => {
+  const fetchData = useCallback(() => {
     setLoading(true);
     fetch(`/api/v1/sessions?period=${period}&page=${page}&limit=20`)
       .then((r) => r.json())
@@ -83,6 +84,10 @@ export default function SessionsPage() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [period, page]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   // Reset to page 1 when period changes
   useEffect(() => {
@@ -96,6 +101,8 @@ export default function SessionsPage() {
       <Header
         title={t("page.sessions.title")}
         description={t("page.sessions.description")}
+        onRefresh={fetchData}
+        isRefreshing={loading}
       />
       <div className="dashboard-content">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -128,9 +135,11 @@ export default function SessionsPage() {
               <CardContent className="p-0">
                 <div className="divide-y">
                   {data?.sessions.length === 0 ? (
-                    <p className="p-8 text-center text-muted-foreground">
-                      {t("page.sessions.noSessions")}
-                    </p>
+                    <EmptyState
+                      icon={Clock}
+                      title={t("page.sessions.noSessions")}
+                      description={t("empty.hint")}
+                    />
                   ) : (
                     data?.sessions.map((session) => (
                       <div

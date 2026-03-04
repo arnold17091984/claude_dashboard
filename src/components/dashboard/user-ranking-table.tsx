@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Trophy } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
@@ -73,8 +74,12 @@ export function UserRankingTable({ data }: { data: RankingEntry[] }) {
   if (data.length === 0) {
     return (
       <Card>
-        <CardContent className="flex items-center justify-center py-12">
-          <p className="text-muted-foreground">{t("common.noData")}</p>
+        <CardContent>
+          <EmptyState
+            icon={Trophy}
+            title={t("common.noData")}
+            description={t("empty.hint")}
+          />
         </CardContent>
       </Card>
     );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Header } from "@/components/layout/header";
 import { ModelCostChart } from "@/components/dashboard/model-cost-chart";
 import { CostTrendChart } from "@/components/dashboard/cost-trend-chart";
@@ -73,7 +73,7 @@ export default function ModelsPage() {
   const [loading, setLoading] = useState(true);
   const { t } = useI18n();
 
-  useEffect(() => {
+  const fetchData = useCallback(() => {
     setLoading(true);
     Promise.all([
       fetch(`/api/v1/models/usage?period=${period}`).then((r) => r.json()),
@@ -86,6 +86,10 @@ export default function ModelsPage() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [period]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const pieData =
     usageData?.usage.map((u) => ({
@@ -100,6 +104,8 @@ export default function ModelsPage() {
       <Header
         title={t("page.models.title")}
         description={t("page.models.description")}
+        onRefresh={fetchData}
+        isRefreshing={loading}
       />
       <div className="dashboard-content">
         <div className="flex items-center justify-between">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Header } from "@/components/layout/header";
 import { UserRankingTable } from "@/components/dashboard/user-ranking-table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -58,7 +58,7 @@ export default function RankingPage() {
   const [loading, setLoading] = useState(true);
   const { t } = useI18n();
 
-  useEffect(() => {
+  const fetchData = useCallback(() => {
     setLoading(true);
     fetch(`/api/v1/ranking?period=${period}&sortBy=${sortBy}`)
       .then((r) => r.json())
@@ -66,6 +66,10 @@ export default function RankingPage() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [period, sortBy]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const totalCost = data?.ranking.reduce((acc, r) => acc + r.cost, 0) || 0;
   const totalSessions = data?.ranking.reduce((acc, r) => acc + r.sessions, 0) || 0;
@@ -75,6 +79,8 @@ export default function RankingPage() {
       <Header
         title={t("page.ranking.title")}
         description={t("page.ranking.description")}
+        onRefresh={fetchData}
+        isRefreshing={loading}
       />
       <div className="dashboard-content">
         <div className="flex flex-wrap items-center justify-between gap-3">

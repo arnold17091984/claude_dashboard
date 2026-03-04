@@ -188,6 +188,26 @@ const ja: TranslationMap = {
   "page.userDetail.noSessions": "セッションがありません",
   "page.userDetail.toolUsageLabel": "ツール使用",
   "page.userDetail.usageCount": "使用回数",
+
+  // Header / Refresh
+  "header.refresh": "更新",
+  "header.autoRefresh": "自動更新",
+  "header.lastUpdated": "最終更新: {time}",
+  "header.refreshing": "更新中...",
+
+  // Breadcrumbs
+  "breadcrumb.home": "ホーム",
+
+  // Empty states
+  "empty.title": "データがありません",
+  "empty.description": "表示するデータがまだありません。",
+  "empty.hint": "データが取り込まれると、ここに表示されます。",
+
+  // KPI trends
+  "kpi.trend.up": "前期比 +{pct}%",
+  "kpi.trend.down": "前期比 -{pct}%",
+  "kpi.trend.neutral": "前期比 変化なし",
+  "kpi.vsLastPeriod": "前期比",
 };
 
 const en: TranslationMap = {
@@ -375,6 +395,26 @@ const en: TranslationMap = {
   "page.userDetail.noSessions": "No sessions",
   "page.userDetail.toolUsageLabel": "Tool Usage",
   "page.userDetail.usageCount": "Usage Count",
+
+  // Header / Refresh
+  "header.refresh": "Refresh",
+  "header.autoRefresh": "Auto Refresh",
+  "header.lastUpdated": "Updated: {time}",
+  "header.refreshing": "Refreshing...",
+
+  // Breadcrumbs
+  "breadcrumb.home": "Home",
+
+  // Empty states
+  "empty.title": "No data",
+  "empty.description": "No data to display yet.",
+  "empty.hint": "Data will appear here once it is ingested.",
+
+  // KPI trends
+  "kpi.trend.up": "+{pct}% vs last period",
+  "kpi.trend.down": "-{pct}% vs last period",
+  "kpi.trend.neutral": "No change vs last period",
+  "kpi.vsLastPeriod": "vs last period",
 };
 
 const ko: TranslationMap = {
@@ -563,6 +603,26 @@ const ko: TranslationMap = {
   "page.userDetail.noSessions": "세션이 없습니다",
   "page.userDetail.toolUsageLabel": "도구 사용",
   "page.userDetail.usageCount": "사용 횟수",
+
+  // Header / Refresh
+  "header.refresh": "새로고침",
+  "header.autoRefresh": "자동 새로고침",
+  "header.lastUpdated": "업데이트: {time}",
+  "header.refreshing": "새로고침 중...",
+
+  // Breadcrumbs
+  "breadcrumb.home": "홈",
+
+  // Empty states
+  "empty.title": "데이터 없음",
+  "empty.description": "표시할 데이터가 아직 없습니다.",
+  "empty.hint": "데이터가 수집되면 여기에 표시됩니다.",
+
+  // KPI trends
+  "kpi.trend.up": "전기 대비 +{pct}%",
+  "kpi.trend.down": "전기 대비 -{pct}%",
+  "kpi.trend.neutral": "전기 대비 변화 없음",
+  "kpi.vsLastPeriod": "전기 대비",
 };
 
 export const translations: Record<Locale, TranslationMap> = { ja, en, ko };

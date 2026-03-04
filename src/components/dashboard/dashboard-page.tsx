@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Header } from "@/components/layout/header";
 import { KPICards } from "./kpi-cards";
 import { ActivityChart } from "./activity-chart";
@@ -8,7 +8,8 @@ import { ToolUsageChart } from "./tool-usage-chart";
 import { ModelCostChart } from "./model-cost-chart";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { FolderGit2 } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
+import { FolderGit2, Database } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 interface OverviewData {
@@ -47,7 +48,7 @@ function formatProjectName(name: string): string {
       return parts.slice(docsIdx + 1).join("-");
     }
   }
-  return parts[parts.length - 1] || name;
+  return parts.at(-1) ?? name;
 }
 
 export function DashboardPage() {
@@ -56,7 +57,7 @@ export function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const { t } = useI18n();
 
-  useEffect(() => {
+  const fetchData = useCallback(() => {
     setLoading(true);
     fetch(`/api/v1/overview?period=${period}`)
       .then((r) => r.json())
@@ -65,9 +66,18 @@ export function DashboardPage() {
       .finally(() => setLoading(false));
   }, [period]);
 
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
   return (
     <>
-      <Header title={t("page.overview.title")} description={t("page.overview.description")} />
+      <Header
+        title={t("page.overview.title")}
+        description={t("page.overview.description")}
+        onRefresh={fetchData}
+        isRefreshing={loading}
+      />
       <div className="dashboard-content">
         {/* Section header with period tabs */}
         <div className="dashboard-section-header">
@@ -90,7 +100,12 @@ export function DashboardPage() {
           </div>
         ) : data ? (
           <>
-            <KPICards data={data.kpi} />
+            <KPICards
+              data={{
+                ...data.kpi,
+                dailyActivity: data.dailyActivity,
+              }}
+            />
 
             {/* Charts row 1 */}
             <div className="chart-grid-2">
@@ -155,14 +170,11 @@ export function DashboardPage() {
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center gap-4 py-20">
-            <p className="text-h3 text-muted-foreground">
-              {t("page.overview.noData")}
-            </p>
-            <p className="text-small text-muted-foreground/70">
-              {t("page.overview.noDataHint")}
-            </p>
-          </div>
+          <EmptyState
+            icon={Database}
+            title={t("page.overview.noData")}
+            description={t("page.overview.noDataHint")}
+          />
         )}
       </div>
     </>

@@ -10,6 +10,7 @@ import {
   Clock,
   Users,
   FolderGit2,
+  Puzzle,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -38,6 +39,7 @@ export function AppSidebar() {
     { titleKey: "nav.sessions", href: "/sessions", icon: Clock },
     { titleKey: "nav.projects", href: "/projects", icon: FolderGit2 },
     { titleKey: "nav.tools", href: "/tools", icon: Wrench },
+    { titleKey: "nav.skills", href: "/skills", icon: Puzzle },
     { titleKey: "nav.models", href: "/models", icon: DollarSign },
     { titleKey: "nav.insights", href: "/insights", icon: Sparkles },
   ];

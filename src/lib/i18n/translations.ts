@@ -11,6 +11,7 @@ const ja: TranslationMap = {
   "nav.sessions": "セッション",
   "nav.projects": "プロジェクト",
   "nav.tools": "ツール分析",
+  "nav.skills": "スキル & エージェント",
   "nav.models": "モデル / コスト",
   "nav.insights": "AIインサイト",
 
@@ -269,6 +270,7 @@ const en: TranslationMap = {
   "nav.sessions": "Sessions",
   "nav.projects": "Projects",
   "nav.tools": "Tool Analysis",
+  "nav.skills": "Skills & Agents",
   "nav.models": "Models / Cost",
   "nav.insights": "AI Insights",
 
@@ -526,6 +528,7 @@ const ko: TranslationMap = {
   "nav.sessions": "세션",
   "nav.projects": "프로젝트",
   "nav.tools": "도구 분석",
+  "nav.skills": "스킬 & 에이전트",
   "nav.models": "모델 / 비용",
   "nav.insights": "AI 인사이트",
 

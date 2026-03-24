@@ -34,6 +34,7 @@ export type TranslationKey =
   | "nav.sessions"
   | "nav.projects"
   | "nav.tools"
+  | "nav.skills"
   | "nav.models"
   | "nav.insights"
 

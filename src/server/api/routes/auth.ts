@@ -376,6 +376,89 @@ authRoute.get("/api-keys", async (c) => {
 // DELETE /api-keys/:keyId
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// GET /setup-script?key=dk_xxx — Returns a shell script that auto-configures hooks
+// ---------------------------------------------------------------------------
+
+authRoute.get("/setup-script", async (c) => {
+  const apiKey = c.req.query("key");
+  if (!apiKey || !apiKey.startsWith("dk_")) {
+    return c.text("echo 'Error: Invalid API key'; exit 1", 400);
+  }
+
+  // Verify the key exists
+  const keyRow = db
+    .select({ id: personalApiKeys.id })
+    .from(personalApiKeys)
+    .where(eq(personalApiKeys.id, apiKey))
+    .limit(1)
+    .all();
+
+  if (keyRow.length === 0) {
+    return c.text("echo 'Error: API key not found'; exit 1", 404);
+  }
+
+  // Determine dashboard URL from request
+  const proto = c.req.header("x-forwarded-proto") || "http";
+  const host = c.req.header("host") || "localhost:3000";
+  const dashboardUrl = `${proto}://${host}`;
+
+  const script = `#!/bin/bash
+# Claude Code Dashboard — Auto Hook Setup
+# This script adds the dashboard hook to ~/.claude/settings.json
+set -euo pipefail
+
+SETTINGS="$HOME/.claude/settings.json"
+API_KEY="${apiKey}"
+DASHBOARD_URL="${dashboardUrl}"
+
+echo ""
+echo "=== Claude Code Dashboard Hook Setup ==="
+echo ""
+
+# Create ~/.claude if it doesn't exist
+mkdir -p "$HOME/.claude"
+
+# Create settings.json if missing
+if [ ! -f "$SETTINGS" ]; then
+  echo '{}' > "$SETTINGS"
+  echo "Created $SETTINGS"
+fi
+
+# Check if jq is available
+if ! command -v jq &>/dev/null; then
+  echo "Error: jq is required. Install with: brew install jq (macOS) or apt install jq (Linux)"
+  exit 1
+fi
+
+# Build the hook command
+HOOK_CMD="curl -sf -X POST $DASHBOARD_URL/api/v1/ingest/session -H 'Authorization: Bearer $API_KEY' -H 'Content-Type: application/json' -d @- < /dev/null || true"
+SYNC_CMD="DASHBOARD_URL=$DASHBOARD_URL DASHBOARD_API_KEY=$API_KEY bash $DASHBOARD_URL/api/v1/auth/sync-skills-script 2>/dev/null || true"
+
+# Add hooks to settings.json (merge, don't overwrite)
+TEMP=$(mktemp)
+jq --arg hook_cmd "$HOOK_CMD" '
+  .hooks //= {} |
+  .hooks.SessionEnd //= [] |
+  if (.hooks.SessionEnd | map(select(.command | contains("dashboard"))) | length) == 0
+  then .hooks.SessionEnd += [{"command": $hook_cmd}]
+  else .
+  end
+' "$SETTINGS" > "$TEMP" && mv "$TEMP" "$SETTINGS"
+
+echo "Hook added to $SETTINGS"
+echo ""
+echo "Dashboard URL: $DASHBOARD_URL"
+echo "API Key: \${API_KEY:0:10}..."
+echo ""
+echo "Setup complete! Session data will be sent when Claude Code sessions end."
+echo ""
+`;
+
+  c.header("Content-Type", "text/plain; charset=utf-8");
+  return c.text(script);
+});
+
 authRoute.delete("/api-keys/:keyId", async (c) => {
   const token = getCookie(c, SESSION_COOKIE_NAME);
   if (!token) {

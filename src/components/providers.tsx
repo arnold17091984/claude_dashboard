@@ -1,11 +1,30 @@
 "use client";
 
 import { SWRConfig } from "swr";
+import { usePathname } from "next/navigation";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { I18nProvider } from "@/lib/i18n";
 import { AuthGuard } from "@/components/auth-guard";
+
+function DashboardShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+
+  // Login page renders without sidebar/nav
+  if (pathname === "/login") {
+    return <>{children}</>;
+  }
+
+  return (
+    <SidebarProvider>
+      <AppSidebar />
+      {/* pb-16 on mobile reserves space above the bottom navigation bar */}
+      <main className="flex-1 overflow-auto pb-16 md:pb-0">{children}</main>
+      <BottomNav />
+    </SidebarProvider>
+  );
+}
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -16,12 +35,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     >
       <I18nProvider>
         <AuthGuard>
-          <SidebarProvider>
-            <AppSidebar />
-            {/* pb-16 on mobile reserves space above the bottom navigation bar */}
-            <main className="flex-1 overflow-auto pb-16 md:pb-0">{children}</main>
-            <BottomNav />
-          </SidebarProvider>
+          <DashboardShell>{children}</DashboardShell>
         </AuthGuard>
       </I18nProvider>
     </SWRConfig>

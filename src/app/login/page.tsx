@@ -23,6 +23,7 @@ export default function LoginPage() {
   const [regLoading, setRegLoading] = useState(false);
   const [newApiKey, setNewApiKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [setupCopied, setSetupCopied] = useState(false);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -119,12 +120,31 @@ export default function LoginPage() {
           </div>
 
           <div className="api-key-instructions">
-            <p className="instructions-title">設定方法</p>
-            <ol className="instructions-list">
-              <li>Claude Codeの設定ファイル（<code>~/.claude/settings.json</code>）を開く</li>
-              <li>フックの<code>X-API-Key</code>ヘッダーに上記のキーを設定する</li>
-              <li>または環境変数 <code>DASHBOARD_API_KEY</code> に設定する</li>
-            </ol>
+            <p className="instructions-title">ワンコマンドセットアップ</p>
+            <p className="instructions-desc">
+              ターミナルで以下のコマンドを実行するだけで、Claude Codeのフック設定が自動で完了します。
+            </p>
+            <div className="setup-command-box">
+              <code className="setup-command-value">
+                {`curl -s ${typeof window !== "undefined" ? window.location.origin : ""}/api/v1/auth/setup-script?key=${newApiKey} | bash`}
+              </code>
+              <button
+                type="button"
+                onClick={() => {
+                  const cmd = `curl -s ${window.location.origin}/api/v1/auth/setup-script?key=${newApiKey} | bash`;
+                  navigator.clipboard.writeText(cmd).then(() => {
+                    setSetupCopied(true);
+                    setTimeout(() => setSetupCopied(false), 2000);
+                  });
+                }}
+                className="api-key-copy-btn"
+              >
+                {setupCopied ? "コピー済み" : "コピー"}
+              </button>
+            </div>
+            <p className="setup-note">
+              ※ jq が必要です（<code>brew install jq</code>）
+            </p>
           </div>
 
           <button
@@ -493,12 +513,43 @@ const loginStyles = `
     line-height: 1.6;
   }
 
-  .instructions-list code {
+  .instructions-desc {
+    font-size: 0.8125rem;
+    color: oklch(0.480 0.015 65);
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+  }
+
+  .setup-command-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    background: oklch(0.180 0.010 65);
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .setup-command-value {
+    flex: 1;
+    font-family: var(--font-geist-mono, monospace);
+    font-size: 0.75rem;
+    color: oklch(0.850 0.060 65);
+    word-break: break-all;
+    line-height: 1.5;
+  }
+
+  .setup-note {
+    font-size: 0.75rem;
+    color: oklch(0.580 0.015 65);
+  }
+
+  .setup-note code {
     font-family: var(--font-geist-mono, monospace);
     background: oklch(0.922 0.008 65);
     padding: 0.1em 0.35em;
     border-radius: 4px;
-    font-size: 0.8em;
+    font-size: 0.9em;
     color: oklch(0.280 0.006 65);
   }
 `;

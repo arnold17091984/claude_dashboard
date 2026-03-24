@@ -9,11 +9,5 @@ export default function LoginLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <html lang="ja" suppressHydrationWarning>
-      <body className="antialiased">
-        {children}
-      </body>
-    </html>
-  );
+  return <>{children}</>;
 }

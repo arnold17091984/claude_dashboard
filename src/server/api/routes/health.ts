@@ -2,6 +2,7 @@
  * health.ts
  *
  * GET /api/v1/health        — basic liveness check
+ * GET /api/v1/health/ready  — readiness probe (DB alive, memory, uptime, cache stats)
  * GET /api/v1/health/data   — data consistency report
  *
  * The /data endpoint checks for three categories of anomaly:
@@ -16,7 +17,10 @@
 import { Hono } from "hono";
 import { db } from "@/server/db";
 import { sessions, events, dailySummary } from "@/server/db/schema";
-import { sql, count, eq } from "drizzle-orm";
+import { sql, count } from "drizzle-orm";
+import fs from "fs";
+import path from "path";
+import { cache } from "@/server/lib/cache";
 
 export const healthRoute = new Hono();
 
@@ -27,6 +31,68 @@ export const healthRoute = new Hono();
 healthRoute.get("/", (c) =>
   c.json({ status: "ok", timestamp: new Date().toISOString() })
 );
+
+// ---------------------------------------------------------------------------
+// GET /health/ready  — readiness probe
+// ---------------------------------------------------------------------------
+
+healthRoute.get("/ready", (c) => {
+  // 1. Verify DB is alive with a synchronous SELECT 1
+  let dbOk = false;
+  let dbError: string | null = null;
+  try {
+    db.select({ one: sql<number>`1` }).from(sessions).limit(1).all();
+    dbOk = true;
+  } catch (err) {
+    dbError = err instanceof Error ? err.message : String(err);
+  }
+
+  // 2. DB file size (best-effort — falls back to null if path is unavailable)
+  let dbFileSizeBytes: number | null = null;
+  try {
+    const dbPath =
+      process.env.DATABASE_URL ??
+      path.join(process.cwd(), "data", "dashboard.db");
+    const stat = fs.statSync(dbPath);
+    dbFileSizeBytes = stat.size;
+  } catch {
+    // Not critical — ignore
+  }
+
+  // 3. Cache stats
+  const cacheEntries = cache.size;
+
+  // 4. Process memory usage
+  const mem = process.memoryUsage();
+
+  // 5. Process uptime (seconds)
+  const uptimeSeconds = Math.floor(process.uptime());
+
+  const status = dbOk ? 200 : 503;
+
+  return c.json(
+    {
+      ready: dbOk,
+      checkedAt: new Date().toISOString(),
+      db: {
+        ok: dbOk,
+        ...(dbError ? { error: dbError } : {}),
+        fileSizeBytes: dbFileSizeBytes,
+      },
+      cache: {
+        entries: cacheEntries,
+      },
+      memory: {
+        rss: mem.rss,
+        heapUsed: mem.heapUsed,
+        heapTotal: mem.heapTotal,
+        external: mem.external,
+      },
+      uptimeSeconds,
+    },
+    status
+  );
+});
 
 // ---------------------------------------------------------------------------
 // GET /health/data  — consistency report

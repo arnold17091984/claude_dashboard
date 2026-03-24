@@ -65,11 +65,26 @@ function startCleanup(windowMs: number): void {
 
 /**
  * Derive a rate-limit key from the request.
- * Uses X-Forwarded-For (behind proxy) or falls back to a generic key.
+ *
+ * Only trusts X-Forwarded-For when TRUSTED_PROXY env var is set (e.g. "1" or
+ * "true"). Otherwise uses the socket remote address to prevent IP spoofing.
  */
 function getClientKey(c: Context, prefix: string): string {
-  const forwarded = c.req.header("X-Forwarded-For");
-  const ip = forwarded?.split(",")[0]?.trim() || "unknown";
+  const trustProxy = process.env.TRUSTED_PROXY;
+  let ip = "unknown";
+
+  if (trustProxy && trustProxy !== "0" && trustProxy !== "false") {
+    const forwarded = c.req.header("X-Forwarded-For");
+    ip = forwarded?.split(",")[0]?.trim() || "unknown";
+  }
+
+  // Fall back to socket address when not trusting proxy or header absent
+  if (ip === "unknown") {
+    // Hono exposes the raw request's socket info via env
+    const rawReq = c.env?.incoming as { socket?: { remoteAddress?: string } } | undefined;
+    ip = rawReq?.socket?.remoteAddress || "unknown";
+  }
+
   return `${prefix}:${ip}`;
 }
 

@@ -3,6 +3,12 @@
 import { Users, MessageSquare, Zap, DollarSign, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Sparkline } from "@/components/ui/sparkline";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface KPIData {
   totalUsers: number;
@@ -79,6 +85,13 @@ function TrendBadge({ pct }: Readonly<TrendBadgeProps>) {
   );
 }
 
+function getAnomalyClass(trend: number | null): string {
+  if (trend === null) return "";
+  if (trend > 30) return "kpi-card--anomaly-positive";
+  if (trend < -30) return "kpi-card--anomaly-negative";
+  return "";
+}
+
 export function KPICards({ data }: Readonly<{ data: KPIData }>) {
   const { t } = useI18n();
 
@@ -98,8 +111,9 @@ export function KPICards({ data }: Readonly<{ data: KPIData }>) {
       titleKey: "kpi.activeUsers",
       value: data.totalUsers.toString(),
       description: t("kpi.registeredUsers"),
+      tooltip: "登録済みユーザー数 / Number of registered users",
       icon: Users,
-      accentHue: "285",
+      accentHue: "65",
       sparkData: null as number[] | null,
       trend: null as number | null,
     },
@@ -107,6 +121,7 @@ export function KPICards({ data }: Readonly<{ data: KPIData }>) {
       titleKey: "kpi.sessions",
       value: formatNumber(data.recentSessions),
       description: `${t("kpi.allPeriod")} ${formatNumber(data.totalSessions)}`,
+      tooltip: "選択期間のClaude Codeセッション数 / Claude Code sessions in selected period",
       icon: MessageSquare,
       accentHue: "182",
       sparkData: sessionSeries.length >= 2 ? sessionSeries : null,
@@ -116,6 +131,7 @@ export function KPICards({ data }: Readonly<{ data: KPIData }>) {
       titleKey: "kpi.tokens",
       value: formatNumber(data.totalInputTokens + data.totalOutputTokens),
       description: tokenDescription,
+      tooltip: "入力+出力トークンの合計 / Total input + output tokens",
       icon: Zap,
       accentHue: "60",
       sparkData: null as number[] | null,
@@ -125,6 +141,7 @@ export function KPICards({ data }: Readonly<{ data: KPIData }>) {
       titleKey: "kpi.estimatedCost",
       value: formatCost(data.totalCost),
       description: t("kpi.periodTotal"),
+      tooltip: "モデル使用料の推定コスト / Estimated model usage cost",
       icon: DollarSign,
       accentHue: "155",
       sparkData: costSeries.length >= 2 ? costSeries : null,
@@ -133,37 +150,50 @@ export function KPICards({ data }: Readonly<{ data: KPIData }>) {
   ];
 
   return (
-    <div className="kpi-grid">
-      {cards.map((card) => (
-        <div key={card.titleKey} className="kpi-card kpi-value-animate">
-          <div className="flex items-start justify-between gap-2">
-            <div className="kpi-icon">
-              <card.icon className="h-4 w-4" />
-            </div>
-            {/* Sparkline — only rendered when series data is available */}
-            {card.sparkData && (
-              <div className="w-20 shrink-0 opacity-70">
-                <Sparkline
-                  data={card.sparkData}
-                  color={`oklch(0.550 0.160 ${card.accentHue})`}
-                  height={36}
-                />
+    <TooltipProvider>
+      <div className="kpi-grid">
+        {cards.map((card) => {
+          const anomalyClass = getAnomalyClass(card.trend);
+
+          return (
+            <div key={card.titleKey} className={`kpi-card kpi-value-animate ${anomalyClass}`}>
+              <div className="flex items-start justify-between gap-2">
+                <div className="kpi-icon">
+                  <card.icon className="h-4 w-4" />
+                </div>
+                {/* Sparkline — only rendered when series data is available */}
+                {card.sparkData && (
+                  <div className="w-20 shrink-0 opacity-70">
+                    <Sparkline
+                      data={card.sparkData}
+                      color={`oklch(0.550 0.160 ${card.accentHue})`}
+                      height={36}
+                    />
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-          <div className="kpi-value" data-slot="kpi-value">
-            {card.value}
-          </div>
-          <div className="kpi-label">{t(card.titleKey)}</div>
-          <p className="text-small text-muted-foreground/70 mt-1 truncate">
-            {card.description}
-          </p>
-          {/* Trend badge */}
-          <div className="mt-2">
-            <TrendBadge pct={card.trend} />
-          </div>
-        </div>
-      ))}
-    </div>
+              <div className="kpi-value" data-slot="kpi-value">
+                {card.value}
+              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="kpi-label cursor-help">{t(card.titleKey)}</div>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  {card.tooltip}
+                </TooltipContent>
+              </Tooltip>
+              <p className="text-small text-muted-foreground/70 mt-1 truncate">
+                {card.description}
+              </p>
+              {/* Trend badge */}
+              <div className="mt-2">
+                <TrendBadge pct={card.trend} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </TooltipProvider>
   );
 }

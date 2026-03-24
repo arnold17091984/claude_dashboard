@@ -1,46 +1,44 @@
 /**
  * auth.ts
  *
- * Shared API key authentication middleware for Hono routes.
+ * API key authentication middleware for Hono ingest routes.
  *
  * Behaviour:
- *  - If the environment variable DASHBOARD_API_KEY is NOT set, all requests
- *    are allowed through (development / zero-config mode).
+ *  - If DASHBOARD_API_KEY is NOT set, all requests are allowed (dev mode).
  *  - If DASHBOARD_API_KEY IS set, the incoming request must supply an
- *    "X-API-Key" header whose value matches the configured key exactly.
- *    Mismatches return a 401 JSON response and short-circuit the handler.
+ *    "X-API-Key" header that matches EITHER:
+ *      1. The global DASHBOARD_API_KEY env var (admin/global key), OR
+ *      2. A personal API key row in the `personal_api_keys` table (dk_xxx...)
+ *  - When a personal key matches, `lastUsedAt` is updated and the account's
+ *    `linkedUserId` is attached to the context as `linkedUserId`.
  *
  * Usage:
  *   import { apiKeyAuth } from "@/server/api/middleware/auth";
- *
- *   // Apply to all routes under a router:
  *   myRoute.use("*", apiKeyAuth);
- *
- *   // Or apply per-route:
- *   myRoute.post("/session", apiKeyAuth, async (c) => { ... });
  */
 
+import { timingSafeEqual } from "node:crypto";
 import type { Context, Next } from "hono";
+import { db } from "@/server/db";
+import { personalApiKeys, accounts } from "@/server/db/schema";
+import { eq } from "drizzle-orm";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-/** Result of an auth check. */
 interface AuthResult {
   authorized: boolean;
-  /** True when no DASHBOARD_API_KEY is configured (dev mode). */
   devMode: boolean;
+  linkedUserId?: string | null;
 }
 
 // ---------------------------------------------------------------------------
-// Core helper — exported so unit tests can call it directly
+// Core helper
 // ---------------------------------------------------------------------------
 
 /**
- * Checks whether `apiKey` satisfies the configured secret.
- *
- * @param apiKey - The value of the incoming X-API-Key header (may be undefined).
+ * Checks whether `apiKey` satisfies the configured secret or a personal key.
  */
 export function checkApiKey(apiKey: string | undefined): AuthResult {
   const expected = process.env.DASHBOARD_API_KEY;
@@ -50,30 +48,64 @@ export function checkApiKey(apiKey: string | undefined): AuthResult {
     return { authorized: true, devMode: true };
   }
 
-  return {
-    authorized: apiKey === expected,
-    devMode: false,
-  };
+  if (!apiKey) {
+    return { authorized: false, devMode: false };
+  }
+
+  // Check global DASHBOARD_API_KEY (timing-safe)
+  const expectedBuf = Buffer.from(expected);
+  const suppliedBuf = Buffer.from(apiKey);
+  const isLengthMatch = expectedBuf.length === suppliedBuf.length;
+  const compareTarget = isLengthMatch ? suppliedBuf : expectedBuf;
+  const isMatch = timingSafeEqual(expectedBuf, compareTarget) && isLengthMatch;
+
+  if (isMatch) {
+    return { authorized: true, devMode: false };
+  }
+
+  // Check personal API keys (dk_xxx format)
+  if (apiKey.startsWith("dk_")) {
+    try {
+      const rows = db
+        .select({
+          keyId: personalApiKeys.id,
+          accountId: personalApiKeys.accountId,
+          linkedUserId: accounts.linkedUserId,
+        })
+        .from(personalApiKeys)
+        .leftJoin(accounts, eq(personalApiKeys.accountId, accounts.id))
+        .where(eq(personalApiKeys.id, apiKey))
+        .limit(1)
+        .all();
+
+      if (rows.length > 0) {
+        // Update lastUsedAt asynchronously (fire-and-forget)
+        db.update(personalApiKeys)
+          .set({ lastUsedAt: new Date().toISOString() })
+          .where(eq(personalApiKeys.id, apiKey))
+          .run();
+
+        return {
+          authorized: true,
+          devMode: false,
+          linkedUserId: rows[0].linkedUserId ?? null,
+        };
+      }
+    } catch (err) {
+      console.error("[auth] Personal API key lookup failed:", err);
+    }
+  }
+
+  return { authorized: false, devMode: false };
 }
 
 // ---------------------------------------------------------------------------
 // Hono middleware
 // ---------------------------------------------------------------------------
 
-/**
- * Hono middleware that enforces API key authentication.
- *
- * Mount it with `route.use("*", apiKeyAuth)` or inline on individual handlers.
- *
- * On failure it returns:
- * ```json
- * { "error": "Unauthorized", "message": "A valid X-API-Key header is required." }
- * ```
- * with HTTP status 401 and Content-Type: application/json.
- */
 export async function apiKeyAuth(c: Context, next: Next): Promise<Response | void> {
   const apiKey = c.req.header("X-API-Key");
-  const { authorized, devMode } = checkApiKey(apiKey);
+  const { authorized, devMode, linkedUserId } = checkApiKey(apiKey);
 
   if (!authorized) {
     return c.json(
@@ -85,8 +117,11 @@ export async function apiKeyAuth(c: Context, next: Next): Promise<Response | voi
     );
   }
 
-  // Attach a flag to the context so downstream handlers know auth status
   c.set("devMode", devMode);
+  // Attach linkedUserId so ingest routes can use it for user association
+  if (linkedUserId !== undefined) {
+    c.set("linkedUserId", linkedUserId);
+  }
 
   await next();
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +20,7 @@ import {
   KeyRound,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { useInsights } from "@/hooks/use-api";
 
 interface Insight {
   id: number;
@@ -88,8 +89,6 @@ function ApiKeyBanner({ t }: Readonly<{ t: (key: string) => string }>) {
 }
 
 export default function InsightsPage() {
-  const [insights, setInsights] = useState<Insight[]>([]);
-  const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [setupRequired, setSetupRequired] = useState(false);
@@ -102,6 +101,10 @@ export default function InsightsPage() {
   const [userError, setUserError] = useState<string | null>(null);
 
   const { t, dateLocale } = useI18n();
+
+  const swrFilter = activeFilter === "all" ? undefined : activeFilter;
+  const { data: rawData, isLoading: loading, isValidating, mutate } = useInsights(swrFilter);
+  const insights: Insight[] = (rawData as { insights?: Insight[] } | undefined)?.insights || [];
 
   const insightLabel = (type: string): string => {
     switch (type) {
@@ -124,27 +127,8 @@ export default function InsightsPage() {
     }
   };
 
-  const fetchInsights = (filter: InsightTypeFilter = activeFilter) => {
-    setLoading(true);
-    const url =
-      filter === "all"
-        ? "/api/v1/ai-insights?limit=20"
-        : `/api/v1/ai-insights?limit=20&type=${filter}`;
-    fetch(url)
-      .then((r) => r.json())
-      .then((data) => setInsights(data.insights || []))
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    fetchInsights();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const handleFilterChange = (filter: InsightTypeFilter) => {
     setActiveFilter(filter);
-    fetchInsights(filter);
   };
 
   const handleGenerate = async () => {
@@ -158,7 +142,7 @@ export default function InsightsPage() {
       );
       const data = await res.json();
       if (data.success) {
-        fetchInsights();
+        mutate();
       } else {
         setError(data.error || t("page.insights.generationFailed"));
         if (data.setupRequired) setSetupRequired(true);
@@ -183,8 +167,8 @@ export default function InsightsPage() {
       );
       const data = await res.json();
       if (data.success) {
-        fetchInsights("all");
         setActiveFilter("all");
+        mutate();
         setUserIdInput("");
       } else {
         setUserError(data.error || t("page.insights.generationFailed"));
@@ -298,8 +282,8 @@ export default function InsightsPage() {
       <Header
         title={t("page.insights.title")}
         description={t("page.insights.description")}
-        onRefresh={fetchInsights}
-        isRefreshing={loading}
+        onRefresh={() => mutate()}
+        isRefreshing={isValidating}
       />
       <div className="dashboard-content">
         {/* Header row */}

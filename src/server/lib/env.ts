@@ -47,6 +47,12 @@ const envSchema = z.object({
     .string()
     .optional(),
 
+  // Invite code for new user registration (optional — open registration if not set)
+  INVITE_CODE: z
+    .string()
+    .optional()
+    .transform((v) => (v?.trim() === "" ? undefined : v)),
+
   // Node environment
   NODE_ENV: z
     .enum(["development", "production", "test"])

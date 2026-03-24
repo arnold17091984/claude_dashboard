@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useMemo } from "react";
 import { Header } from "@/components/layout/header";
 import { KPICards } from "./kpi-cards";
 import { ActivityChart } from "./activity-chart";
@@ -11,34 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FolderGit2, Database } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
-
-interface OverviewData {
-  kpi: {
-    totalUsers: number;
-    totalSessions: number;
-    recentSessions: number;
-    totalInputTokens: number;
-    totalOutputTokens: number;
-    totalCacheReadTokens: number;
-    totalCost: number;
-  };
-  dailyActivity: Array<{
-    date: string;
-    sessions: number | null;
-    messages: number | null;
-    toolCalls: number | null;
-    cost: number | null;
-  }>;
-  topTools: Array<{ toolName: string | null; count: number }>;
-  topModels: Array<{
-    model: string | null;
-    inputTokens: number | string | null;
-    outputTokens: number | string | null;
-    cost: number | string | null;
-  }>;
-  topProjects?: Array<{ projectName: string | null; count: number }>;
-  period: string;
-}
+import { useOverview } from "@/hooks/use-api";
+import { usePeriod } from "@/hooks/use-period";
 
 function formatProjectName(name: string): string {
   const parts = name.split("-").filter(Boolean);
@@ -52,25 +26,11 @@ function formatProjectName(name: string): string {
 }
 
 export function DashboardPage() {
-  const [data, setData] = useState<OverviewData | null>(null);
-  const [period, setPeriod] = useState("7d");
-  const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = usePeriod("7d");
   const { t } = useI18n();
+  const { data, isLoading, isValidating, mutate } = useOverview(period);
 
-  const fetchData = useCallback(() => {
-    setLoading(true);
-    fetch(`/api/v1/overview?period=${period}`)
-      .then((r) => r.json())
-      .then(setData)
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [period]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  // Derive filtered project list once per render (avoids repeated inline filter)
+  // Derive filtered project list once per render
   const filteredProjects = useMemo(
     () => data?.topProjects?.filter((p) => p.projectName) ?? [],
     [data?.topProjects]
@@ -87,8 +47,8 @@ export function DashboardPage() {
       <Header
         title={t("page.overview.title")}
         description={t("page.overview.description")}
-        onRefresh={fetchData}
-        isRefreshing={loading}
+        onRefresh={() => mutate()}
+        isRefreshing={isValidating}
       />
       <div className="dashboard-content">
         {/* Section header with period tabs */}
@@ -104,7 +64,7 @@ export function DashboardPage() {
         </div>
 
         {/* KPI cards skeleton */}
-        {loading ? (
+        {isLoading ? (
           <div className="kpi-grid">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="kpi-card h-36 skeleton" />

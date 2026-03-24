@@ -1,7 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { usePeriod } from "@/hooks/use-period";
 import { Header } from "@/components/layout/header";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,8 +19,10 @@ import {
   ChevronLeft,
   ChevronRight,
   User,
+  X,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { useSessions } from "@/hooks/use-api";
 
 interface Session {
   id: string;
@@ -70,29 +74,19 @@ function formatDate(dateStr: string, dateLocale: string): string {
 }
 
 export default function SessionsPage() {
-  const [data, setData] = useState<SessionsData | null>(null);
-  const [period, setPeriod] = useState("30d");
+  const [period, setPeriod] = usePeriod("30d");
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
   const { t, dateLocale } = useI18n();
+  const searchParams = useSearchParams();
+  const dateFilter = searchParams.get("date") ?? undefined;
 
-  const fetchData = useCallback(() => {
-    setLoading(true);
-    fetch(`/api/v1/sessions?period=${period}&page=${page}&limit=20`)
-      .then((r) => r.json())
-      .then(setData)
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [period, page]);
+  const { data: rawData, isLoading, isValidating, mutate } = useSessions(period, page, 20, dateFilter);
+  const data = rawData as SessionsData | undefined;
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  // Reset to page 1 when period changes
-  useEffect(() => {
+  const handlePeriodChange = (newPeriod: string) => {
+    setPeriod(newPeriod);
     setPage(1);
-  }, [period]);
+  };
 
   const pagination = data?.pagination;
 
@@ -101,10 +95,23 @@ export default function SessionsPage() {
       <Header
         title={t("page.sessions.title")}
         description={t("page.sessions.description")}
-        onRefresh={fetchData}
-        isRefreshing={loading}
+        onRefresh={() => mutate()}
+        isRefreshing={isValidating}
       />
       <div className="dashboard-content">
+        {dateFilter && (
+          <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
+            <Clock className="h-4 w-4 shrink-0" />
+            <span>{dateFilter} のセッションを表示中</span>
+            <Link
+              href="/sessions"
+              className="ml-auto flex items-center gap-1 rounded px-1.5 py-0.5 hover:bg-amber-100 dark:hover:bg-amber-900/40"
+            >
+              <X className="h-3.5 w-3.5" />
+              解除
+            </Link>
+          </div>
+        )}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-h2 text-foreground">{t("page.sessions.heading")}</h2>
@@ -114,7 +121,7 @@ export default function SessionsPage() {
               </p>
             )}
           </div>
-          <Tabs value={period} onValueChange={setPeriod}>
+          <Tabs value={period} onValueChange={handlePeriodChange}>
             <TabsList>
               <TabsTrigger value="7d">{t("common.period.7d")}</TabsTrigger>
               <TabsTrigger value="30d">{t("common.period.30d")}</TabsTrigger>
@@ -123,7 +130,7 @@ export default function SessionsPage() {
           </Tabs>
         </div>
 
-        {loading ? (
+        {isLoading ? (
           <div className="space-y-3">
             {[...Array(8)].map((_, i) => (
               <Skeleton key={i} className="h-20 rounded-xl" />

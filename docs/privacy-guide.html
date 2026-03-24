@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Claude Code ダッシュボード プライバシーガイド</title>
+<style>
+  @page { size: A4; margin: 20mm 18mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif; color: #1a1a1a; line-height: 1.7; font-size: 11pt; }
+  .page { page-break-after: always; padding: 0; }
+  .page:last-child { page-break-after: avoid; }
+
+  /* Header */
+  .doc-header { text-align: center; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 3px solid #D97706; }
+  .doc-header h1 { font-size: 22pt; color: #1a1a1a; margin-bottom: 6px; }
+  .doc-header .subtitle { font-size: 12pt; color: #666; }
+  .doc-header .date { font-size: 9pt; color: #999; margin-top: 8px; }
+  .doc-header .badge { display: inline-block; background: #FEF3C7; color: #92400E; padding: 4px 14px; border-radius: 4px; font-size: 9pt; font-weight: bold; margin-top: 10px; }
+
+  /* Sections */
+  h2 { font-size: 14pt; color: #92400E; border-left: 4px solid #D97706; padding-left: 10px; margin: 28px 0 14px; }
+  h3 { font-size: 11pt; color: #1a1a1a; margin: 18px 0 8px; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 18px; font-size: 10pt; }
+  th { background: #FEF3C7; color: #92400E; text-align: left; padding: 8px 10px; border: 1px solid #E5E7EB; font-weight: bold; }
+  td { padding: 7px 10px; border: 1px solid #E5E7EB; }
+  tr:nth-child(even) td { background: #FAFAFA; }
+  .yes { color: #059669; font-weight: bold; }
+  .no { color: #DC2626; font-weight: bold; }
+
+  /* Diagram */
+  .diagram { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 18px 22px; margin: 14px 0 18px; font-family: "SF Mono", "Menlo", monospace; font-size: 9.5pt; white-space: pre; line-height: 1.6; overflow-x: auto; }
+
+  /* Info boxes */
+  .info-box { background: #FFF7ED; border: 1px solid #FDBA74; border-radius: 6px; padding: 14px 16px; margin: 12px 0; }
+  .info-box.green { background: #ECFDF5; border-color: #6EE7B7; }
+  .info-box .label { font-weight: bold; color: #92400E; font-size: 10pt; margin-bottom: 4px; }
+  .info-box.green .label { color: #065F46; }
+
+  /* Code */
+  pre { background: #1F2937; color: #E5E7EB; padding: 14px 16px; border-radius: 6px; font-size: 9pt; line-height: 1.5; overflow-x: auto; margin: 8px 0 14px; }
+  code { font-family: "SF Mono", "Menlo", monospace; }
+
+  /* List */
+  ul, ol { margin: 6px 0 12px 20px; }
+  li { margin: 3px 0; }
+
+  p { margin: 6px 0; }
+
+  .footer { text-align: center; font-size: 8pt; color: #999; margin-top: 30px; padding-top: 14px; border-top: 1px solid #E5E7EB; }
+
+  /* Summary box */
+  .summary { background: #FEF3C7; border: 2px solid #D97706; border-radius: 8px; padding: 16px 20px; margin: 18px 0; text-align: center; font-size: 12pt; font-weight: bold; color: #92400E; }
+</style>
+</head>
+<body>
+
+<!-- Page 1 -->
+<div class="page">
+  <div class="doc-header">
+    <h1>Claude Code ダッシュボード<br>プライバシーガイド</h1>
+    <div class="subtitle">メンバー向け説明資料</div>
+    <div class="badge">社内限定</div>
+    <div class="date">作成日: 2026年3月24日</div>
+  </div>
+
+  <h2>1. このダッシュボードは何をするもの？</h2>
+  <p>チーム全体のClaude Code <strong>利用コスト</strong>と<strong>利用傾向</strong>を把握するためのツールです。</p>
+  <p>「誰が何を書いたか」ではなく、「チーム全体でどのくらい使っているか」を見るためのものです。</p>
+
+  <h2>2. 送信されるデータ（これだけ）</h2>
+  <table>
+    <tr><th>データ</th><th>例</th><th>目的</th></tr>
+    <tr><td>セッションID</td><td>abc-123-def</td><td>セッション重複排除</td></tr>
+    <tr><td>プロジェクト名</td><td>my-app</td><td>プロジェクト別集計</td></tr>
+    <tr><td>プロジェクトパス</td><td>~/repos/my-app</td><td>プロジェクト特定<br><strong>※ユーザー名はマスク済み</strong></td></tr>
+    <tr><td>Gitブランチ</td><td>feature/login</td><td>作業内容の大まかな把握</td></tr>
+    <tr><td>使用モデル</td><td>claude-sonnet-4-6</td><td>コスト分析</td></tr>
+    <tr><td>ツール名</td><td>Read, Edit, Bash</td><td>ツール利用傾向（<strong>名前だけ</strong>）</td></tr>
+    <tr><td>トークン数</td><td>入力: 50,000</td><td>コスト計算</td></tr>
+    <tr><td>利用時間</td><td>45分</td><td>利用傾向</td></tr>
+  </table>
+
+  <h2>3. 絶対に送信されないデータ</h2>
+  <table>
+    <tr><th>項目</th><th>送信？</th></tr>
+    <tr><td>会話の内容（あなたの質問・Claudeの回答）</td><td class="no">❌ 送信されない</td></tr>
+    <tr><td>コードの中身</td><td class="no">❌ 送信されない</td></tr>
+    <tr><td>ファイルの内容</td><td class="no">❌ 送信されない</td></tr>
+    <tr><td>Bashコマンドの実行結果</td><td class="no">❌ 送信されない</td></tr>
+    <tr><td>ブラウザ履歴</td><td class="no">❌ 送信されない</td></tr>
+    <tr><td>メール・写真・個人ファイル</td><td class="no">❌ 送信されない</td></tr>
+    <tr><td>PCのユーザー名</td><td class="no">❌ 送信されない（マスク処理済み）</td></tr>
+  </table>
+
+  <div class="summary">
+    💡 このダッシュボードは「経費精算書」のようなものです。<br>
+    「何にいくら使ったか」は見えますが、「何を買ったかの中身」は見えません。
+  </div>
+</div>
+
+<!-- Page 2 -->
+<div class="page">
+  <h2>4. データの流れ</h2>
+  <div class="diagram">┌──────────────────────────────────────────┐
+│  あなたのPC                                │
+│                                            │
+│  ❌ 会話内容 → ローカルにのみ保存            │
+│  ❌ コード   → ローカルにのみ保存            │
+│  ❌ ファイル → ローカルにのみ保存            │
+│                                            │
+│  ✅ セッション終了時                         │
+│     統計データだけを送信                      │
+│     ・何分使った？                            │
+│     ・トークン何個？                          │
+│     ・どのツールを何回？                      │
+│     ・どのプロジェクトで？                    │
+│     （PCユーザー名はマスク済み）              │
+└────────────┬─────────────────────────────┘
+             │ 個人APIキーで認証
+             │ HTTPS暗号化
+             ↓
+┌──────────────────────────────────────────┐
+│  ダッシュボードサーバー                      │
+│  統計データのみ保存                          │
+│  ユーザー名はニックネーム表示                │
+└──────────────────────────────────────────┘</div>
+
+  <h2>5. 管理者に見えるもの vs 見えないもの</h2>
+  <div class="info-box green">
+    <div class="label">✅ 管理者が見えるもの</div>
+    <ul>
+      <li>チーム全体のコスト推移</li>
+      <li>ユーザーごとの利用時間</li>
+      <li>よく使われるツール・モデル</li>
+      <li>プロジェクト別の利用状況</li>
+    </ul>
+  </div>
+  <div class="info-box">
+    <div class="label">❌ 管理者に見えないもの</div>
+    <ul>
+      <li>あなたが何を質問したか</li>
+      <li>あなたが何のコードを書いたか</li>
+      <li>あなたのPC上のファイル</li>
+      <li>Claude Code以外のPC利用状況</li>
+    </ul>
+  </div>
+
+  <h2>6. あなたのコントロール</h2>
+  <table>
+    <tr><th>やりたいこと</th><th>方法</th></tr>
+    <tr><td>送信を止めたい</td><td>settings.json からフックを削除するだけ</td></tr>
+    <tr><td>何が送信されるか確認したい</td><td>フックは curl コマンドなので <code>-v</code> をつけて中身を確認可能</td></tr>
+    <tr><td>ニックネームを変えたい</td><td>ダッシュボードの設定画面から変更</td></tr>
+    <tr><td>APIキーを無効にしたい</td><td>ダッシュボードで再発行すれば旧キーは無効に</td></tr>
+    <tr><td>データの削除を依頼したい</td><td>管理者に依頼すればアカウントとデータを削除可能</td></tr>
+  </table>
+
+  <div class="info-box green">
+    <div class="label">🔑 ポイント</div>
+    <p>フックの設定は<strong>あなた自身が行います</strong>。管理者がリモートで勝手にインストールすることはできません。<br>
+    また、いつでも自分の判断で送信を停止できます。</p>
+  </div>
+</div>
+
+<!-- Page 3 -->
+<div class="page">
+  <h2>7. セットアップ手順</h2>
+
+  <h3>ステップ 1：ダッシュボードにアカウント作成</h3>
+  <ol>
+    <li>ダッシュボードの URL にアクセス</li>
+    <li>「アカウント作成」をクリック</li>
+    <li>管理者から受け取った<strong>招待コード</strong>を入力</li>
+    <li>お好みの<strong>ニックネーム</strong>と<strong>パスワード</strong>を設定</li>
+    <li>個人APIキー（<code>dk_xxxxxxxxxx</code>）が自動発行されます</li>
+  </ol>
+
+  <h3>ステップ 2：Claude Code のフック設定</h3>
+  <p><code>~/.claude/settings.json</code> に以下を追加してください：</p>
+  <pre><code>{
+  "hooks": {
+    "SessionEnd": [
+      {
+        "command": "curl -s -X POST https://dashboard.example.com/api/v1/ingest/session \
+          -H 'Authorization: Bearer dk_あなたのAPIキー' \
+          -H 'Content-Type: application/json' \
+          -d '{統計データ}'"
+      }
+    ]
+  }
+}</code></pre>
+
+  <div class="info-box">
+    <div class="label">📝 補足</div>
+    <p>具体的なフック設定テンプレートは管理者から配布されます。<br>
+    上記はイメージ図であり、実際のコマンドはテンプレートをコピー＆ペーストするだけです。</p>
+  </div>
+
+  <h3>ステップ 3：完了</h3>
+  <p>以上で設定は完了です。あとはClaude Codeのセッション終了時に、自動的に統計データが送信されます。</p>
+
+  <h2>8. よくある質問</h2>
+  <table>
+    <tr><th>質問</th><th>回答</th></tr>
+    <tr><td>強制ですか？</td><td>いいえ。フック設定は任意です。</td></tr>
+    <tr><td>個人PCでも安全ですか？</td><td>はい。Claude Codeのセッション統計のみ送信されます。<br>PC内のファイルや個人データには一切アクセスしません。</td></tr>
+    <tr><td>サボっているとバレますか？</td><td>利用時間は見えますが、目的はコスト管理であり<br>勤務評価には使用しません。</td></tr>
+    <tr><td>退職時にデータは削除されますか？</td><td>管理者に依頼すれば削除されます。</td></tr>
+    <tr><td>送信データを事前に確認できますか？</td><td>はい。フックはcurlコマンドなので、<br>送信内容は完全に透明です。</td></tr>
+  </table>
+
+  <h2>9. 技術的な安全対策</h2>
+  <ul>
+    <li><strong>通信の暗号化：</strong>HTTPS（TLS）で暗号化されて送信されます</li>
+    <li><strong>個人APIキー認証：</strong>APIキーがないとデータ送信できません</li>
+    <li><strong>パスのマスキング：</strong><code>/Users/tanaka/repos/app</code> → <code>~/repos/app</code> に自動変換</li>
+    <li><strong>ニックネーム表示：</strong>ダッシュボード上ではPCユーザー名ではなくニックネームで表示</li>
+    <li><strong>レート制限：</strong>不正な大量リクエストを防止</li>
+    <li><strong>セキュリティヘッダー：</strong>CSP, HSTS 等の標準的なWebセキュリティ対策を実装</li>
+  </ul>
+
+  <div class="footer">
+    Claude Code Dashboard — Privacy Guide v1.0<br>
+    ご不明な点は管理者までお問い合わせください。
+  </div>
+</div>
+
+</body>
+</html>

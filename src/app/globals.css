@@ -96,91 +96,91 @@
 
 /* ============================================================
    LIGHT MODE
-   Signature: Deep Violet-Indigo primary (not generic blue)
-   Warm Amber accent
-   12-step neutral scale in OKLCH
+   Signature: Warm Amber-Terracotta primary (Claude Code identity)
+   Coral accent for secondary emphasis
+   12-step warm-tinted neutral scale in OKLCH
    ============================================================ */
 :root {
   /* --- Radius base --- */
   --radius: 0.625rem; /* 10px */
 
-  /* --- Neutral scale (12 steps, L from 1.00 → 0.09) --- */
-  --neutral-50:  oklch(0.985 0 0);    /* near-white      */
-  --neutral-100: oklch(0.960 0 0);
-  --neutral-200: oklch(0.922 0 0);
-  --neutral-300: oklch(0.870 0 0);
-  --neutral-400: oklch(0.780 0 0);
-  --neutral-500: oklch(0.660 0 0);
-  --neutral-600: oklch(0.520 0 0);
-  --neutral-700: oklch(0.400 0 0);
-  --neutral-800: oklch(0.280 0 0);
-  --neutral-900: oklch(0.185 0 0);
-  --neutral-950: oklch(0.120 0 0);
-  --neutral-1000: oklch(0.090 0 0);   /* near-black      */
+  /* --- Neutral scale (12 steps, warm-tinted — hue 65 low chroma) --- */
+  --neutral-50:  oklch(0.985 0.004 65);   /* warm near-white  */
+  --neutral-100: oklch(0.960 0.006 65);
+  --neutral-200: oklch(0.922 0.008 65);
+  --neutral-300: oklch(0.870 0.010 65);
+  --neutral-400: oklch(0.780 0.010 65);
+  --neutral-500: oklch(0.660 0.010 65);
+  --neutral-600: oklch(0.520 0.008 65);
+  --neutral-700: oklch(0.400 0.008 65);
+  --neutral-800: oklch(0.280 0.006 65);
+  --neutral-900: oklch(0.185 0.006 65);
+  --neutral-950: oklch(0.120 0.004 65);
+  --neutral-1000: oklch(0.090 0.004 65);  /* warm near-black  */
 
-  /* --- Brand: Deep Violet-Indigo — hue 285 --- */
-  /* Rationale: distinctive from generic #3B82F6 blue,
-     vibrant enough for data viz, calm enough for data-dense UI */
-  --brand-50:   oklch(0.970 0.020 285);
-  --brand-100:  oklch(0.940 0.040 285);
-  --brand-200:  oklch(0.880 0.080 285);
-  --brand-300:  oklch(0.790 0.130 285);
-  --brand-400:  oklch(0.680 0.185 285);
-  --brand-500:  oklch(0.570 0.225 285);   /* signature mid     */
-  --brand-600:  oklch(0.490 0.240 285);   /* primary action    */
-  --brand-700:  oklch(0.410 0.220 285);
-  --brand-800:  oklch(0.320 0.180 285);
-  --brand-900:  oklch(0.235 0.130 285);
+  /* --- Brand: Warm Amber-Terracotta — hue 65 --- */
+  /* Rationale: matches Claude Code's D97706 orange identity,
+     warm and professional, earthy Anthropic palette             */
+  --brand-50:   oklch(0.975 0.025 65);
+  --brand-100:  oklch(0.945 0.050 65);
+  --brand-200:  oklch(0.890 0.095 65);
+  --brand-300:  oklch(0.820 0.140 65);
+  --brand-400:  oklch(0.740 0.170 65);
+  --brand-500:  oklch(0.670 0.185 65);    /* signature mid     */
+  --brand-600:  oklch(0.600 0.190 65);    /* primary action    */
+  --brand-700:  oklch(0.520 0.175 65);
+  --brand-800:  oklch(0.420 0.145 65);
+  --brand-900:  oklch(0.320 0.105 65);
 
-  /* --- Warm Amber accent — hue 60 --- */
-  --warm-50:   oklch(0.980 0.025 60);
-  --warm-200:  oklch(0.920 0.080 60);
-  --warm-400:  oklch(0.820 0.155 60);
-  --warm-500:  oklch(0.750 0.175 60);    /* accent action     */
-  --warm-600:  oklch(0.650 0.170 60);
+  /* --- Coral accent — hue 25 (warm coral/salmon) --- */
+  --warm-50:   oklch(0.980 0.020 25);
+  --warm-200:  oklch(0.910 0.070 25);
+  --warm-400:  oklch(0.780 0.150 25);
+  --warm-500:  oklch(0.700 0.175 25);     /* accent action     */
+  --warm-600:  oklch(0.620 0.180 25);
 
   /* ---- Core surface tokens ---- */
-  --background:         oklch(0.985 0.002 285);   /* faint violet tint, not sterile white */
-  --foreground:         oklch(0.095 0.015 285);   /* near-black with violet warmth         */
+  --background:         oklch(0.985 0.004 65);    /* faint warm tint, not sterile white   */
+  --foreground:         oklch(0.130 0.010 65);    /* near-black with warm undertone       */
 
-  --card:               oklch(1.000 0 0);          /* pure white cards on tinted bg         */
-  --card-foreground:    oklch(0.095 0.015 285);
+  --card:               oklch(0.998 0.002 65);    /* near-white cards on tinted bg        */
+  --card-foreground:    oklch(0.130 0.010 65);
 
-  --popover:            oklch(1.000 0 0);
-  --popover-foreground: oklch(0.095 0.015 285);
+  --popover:            oklch(0.998 0.002 65);
+  --popover-foreground: oklch(0.130 0.010 65);
 
   /* ---- Primary = brand-600 ---- */
-  --primary:            oklch(0.490 0.240 285);
-  --primary-foreground: oklch(0.985 0.005 285);
+  --primary:            oklch(0.600 0.190 65);
+  --primary-foreground: oklch(0.985 0.005 65);
 
-  /* ---- Secondary = soft neutral ---- */
-  --secondary:          oklch(0.960 0.008 285);
-  --secondary-foreground: oklch(0.280 0.030 285);
+  /* ---- Secondary = warm neutral ---- */
+  --secondary:          oklch(0.960 0.010 65);
+  --secondary-foreground: oklch(0.280 0.025 65);
 
   /* ---- Muted ---- */
-  --muted:              oklch(0.955 0.006 285);
-  --muted-foreground:   oklch(0.480 0.020 285);
+  --muted:              oklch(0.955 0.008 65);
+  --muted-foreground:   oklch(0.480 0.015 65);
 
-  /* ---- Accent = warm amber ---- */
-  --accent:             oklch(0.960 0.020 60);
-  --accent-foreground:  oklch(0.280 0.050 60);
+  /* ---- Accent = warm coral ---- */
+  --accent:             oklch(0.960 0.018 25);
+  --accent-foreground:  oklch(0.320 0.060 25);
 
   /* ---- Destructive ---- */
   --destructive:        oklch(0.577 0.245 27.325);
 
   /* ---- Chrome ---- */
-  --border:             oklch(0.900 0.010 285);
-  --input:              oklch(0.920 0.008 285);
-  --ring:               oklch(0.490 0.240 285);
+  --border:             oklch(0.905 0.010 65);
+  --input:              oklch(0.920 0.008 65);
+  --ring:               oklch(0.600 0.190 65);
 
   /* ---- Brand tokens (utility) ---- */
-  --brand:              oklch(0.490 0.240 285);
-  --brand-foreground:   oklch(0.985 0.005 285);
-  --brand-muted:        oklch(0.880 0.060 285);
-  --brand-subtle:       oklch(0.960 0.018 285);
+  --brand:              oklch(0.600 0.190 65);
+  --brand-foreground:   oklch(0.985 0.005 65);
+  --brand-muted:        oklch(0.890 0.060 65);
+  --brand-subtle:       oklch(0.960 0.020 65);
 
-  --warm:               oklch(0.750 0.175 60);
-  --warm-foreground:    oklch(0.985 0.010 60);
+  --warm:               oklch(0.700 0.175 25);
+  --warm-foreground:    oklch(0.985 0.010 25);
 
   /* ---- KPI delta semantic colors ---- */
   --positive:           oklch(0.540 0.160 155);   /* emerald-green   */
@@ -190,60 +190,60 @@
 
   /* ---- Chart palette (6 colors — perceptually balanced, OKLCH) ----
      Each color: (1) distinct hue (2) readable on white (3) readable on dark
-     Hue sequence: Violet → Amber → Teal → Rose → Cyan → Lime           */
-  --chart-1: oklch(0.520 0.230 285);   /* brand violet      */
-  --chart-2: oklch(0.720 0.175 60);    /* warm amber        */
-  --chart-3: oklch(0.550 0.160 182);   /* teal              */
-  --chart-4: oklch(0.600 0.220 15);    /* rose-red          */
-  --chart-5: oklch(0.620 0.175 218);   /* sky-cyan          */
-  --chart-6: oklch(0.620 0.170 135);   /* sage-lime         */
+     Hue sequence: Amber → Teal → Coral → Cyan → Sage → Indigo          */
+  --chart-1: oklch(0.640 0.180 65);    /* brand amber (primary)  */
+  --chart-2: oklch(0.550 0.160 182);   /* teal                   */
+  --chart-3: oklch(0.620 0.200 25);    /* coral                  */
+  --chart-4: oklch(0.600 0.155 218);   /* sky-cyan               */
+  --chart-5: oklch(0.600 0.160 135);   /* sage-green             */
+  --chart-6: oklch(0.530 0.150 250);   /* steel-blue (not violet)*/
 
   /* ---- Skeleton shimmer highlight (light) ---- */
-  --skeleton-highlight:         oklch(0.930 0.006 285);
+  --skeleton-highlight:         oklch(0.930 0.008 65);
 
   /* ---- Sidebar ---- */
-  --sidebar:                    oklch(0.976 0.004 285);  /* 1 step darker than bg */
-  --sidebar-foreground:         oklch(0.095 0.015 285);
-  --sidebar-primary:            oklch(0.490 0.240 285);
-  --sidebar-primary-foreground: oklch(0.985 0.005 285);
-  --sidebar-accent:             oklch(0.940 0.018 285);
-  --sidebar-accent-foreground:  oklch(0.490 0.240 285);  /* violet on hover  */
-  --sidebar-border:             oklch(0.905 0.010 285);
-  --sidebar-ring:               oklch(0.490 0.240 285);
+  --sidebar:                    oklch(0.976 0.006 65);   /* 1 step darker than bg */
+  --sidebar-foreground:         oklch(0.130 0.010 65);
+  --sidebar-primary:            oklch(0.600 0.190 65);
+  --sidebar-primary-foreground: oklch(0.985 0.005 65);
+  --sidebar-accent:             oklch(0.940 0.018 65);
+  --sidebar-accent-foreground:  oklch(0.600 0.190 65);   /* amber on hover   */
+  --sidebar-border:             oklch(0.905 0.010 65);
+  --sidebar-ring:               oklch(0.600 0.190 65);
 }
 
 /* ============================================================
    DARK MODE
-   Background: deep violet-tinted near-black (not flat gray)
-   Cards: slightly elevated surface
+   Background: deep warm-tinted near-black (terminal aesthetic)
+   Cards: slightly elevated warm surface
    All colors recalibrated for contrast & legibility
    ============================================================ */
 .dark {
   /* ---- Core surface ---- */
-  --background:         oklch(0.105 0.018 285);   /* deep violet-tinted near-black */
-  --foreground:         oklch(0.955 0.008 285);   /* near-white with violet warmth */
+  --background:         oklch(0.105 0.012 65);    /* deep warm near-black (terminal feel) */
+  --foreground:         oklch(0.950 0.008 65);    /* near-white with warm undertone       */
 
-  --card:               oklch(0.148 0.020 285);   /* slightly elevated surface     */
-  --card-foreground:    oklch(0.955 0.008 285);
+  --card:               oklch(0.148 0.014 65);    /* slightly elevated surface            */
+  --card-foreground:    oklch(0.950 0.008 65);
 
-  --popover:            oklch(0.175 0.022 285);
-  --popover-foreground: oklch(0.955 0.008 285);
+  --popover:            oklch(0.175 0.016 65);
+  --popover-foreground: oklch(0.950 0.008 65);
 
   /* ---- Primary — brighter in dark mode for contrast ---- */
-  --primary:            oklch(0.680 0.200 285);
-  --primary-foreground: oklch(0.080 0.020 285);
+  --primary:            oklch(0.740 0.175 65);
+  --primary-foreground: oklch(0.100 0.015 65);
 
   /* ---- Secondary ---- */
-  --secondary:          oklch(0.210 0.025 285);
-  --secondary-foreground: oklch(0.920 0.010 285);
+  --secondary:          oklch(0.210 0.018 65);
+  --secondary-foreground: oklch(0.920 0.010 65);
 
   /* ---- Muted ---- */
-  --muted:              oklch(0.195 0.022 285);
-  --muted-foreground:   oklch(0.580 0.030 285);
+  --muted:              oklch(0.195 0.016 65);
+  --muted-foreground:   oklch(0.560 0.020 65);
 
-  /* ---- Accent = warm amber (boosted for dark) ---- */
-  --accent:             oklch(0.230 0.040 60);
-  --accent-foreground:  oklch(0.880 0.120 60);
+  /* ---- Accent = coral (boosted for dark) ---- */
+  --accent:             oklch(0.230 0.035 25);
+  --accent-foreground:  oklch(0.850 0.120 25);
 
   /* ---- Destructive ---- */
   --destructive:        oklch(0.650 0.220 27.325);
@@ -251,16 +251,16 @@
   /* ---- Chrome ---- */
   --border:             oklch(1 0 0 / 9%);
   --input:              oklch(1 0 0 / 13%);
-  --ring:               oklch(0.680 0.200 285);
+  --ring:               oklch(0.740 0.175 65);
 
   /* ---- Brand tokens ---- */
-  --brand:              oklch(0.680 0.200 285);
-  --brand-foreground:   oklch(0.080 0.020 285);
-  --brand-muted:        oklch(0.250 0.055 285);
-  --brand-subtle:       oklch(0.190 0.028 285);
+  --brand:              oklch(0.740 0.175 65);
+  --brand-foreground:   oklch(0.100 0.015 65);
+  --brand-muted:        oklch(0.280 0.050 65);
+  --brand-subtle:       oklch(0.195 0.025 65);
 
-  --warm:               oklch(0.780 0.170 60);
-  --warm-foreground:    oklch(0.080 0.020 60);
+  --warm:               oklch(0.750 0.170 25);
+  --warm-foreground:    oklch(0.100 0.015 25);
 
   /* ---- KPI delta semantic ---- */
   --positive:           oklch(0.640 0.165 155);
@@ -268,26 +268,27 @@
   --negative:           oklch(0.650 0.220 27.325);
   --negative-muted:     oklch(0.220 0.065 27.325);
 
-  /* ---- Chart palette (dark) — higher lightness for visibility ---- */
-  --chart-1: oklch(0.660 0.215 285);   /* brand violet (brighter) */
-  --chart-2: oklch(0.780 0.165 60);    /* warm amber              */
-  --chart-3: oklch(0.650 0.155 182);   /* teal                    */
-  --chart-4: oklch(0.680 0.210 15);    /* rose-red                */
-  --chart-5: oklch(0.700 0.165 218);   /* sky-cyan                */
-  --chart-6: oklch(0.700 0.158 135);   /* sage-lime               */
+  /* ---- Chart palette (dark) — higher lightness for visibility ----
+     Hue sequence: Amber → Teal → Coral → Cyan → Sage → Steel-blue    */
+  --chart-1: oklch(0.740 0.170 65);    /* brand amber (brighter)  */
+  --chart-2: oklch(0.650 0.155 182);   /* teal                    */
+  --chart-3: oklch(0.700 0.190 25);    /* coral                   */
+  --chart-4: oklch(0.680 0.155 218);   /* sky-cyan                */
+  --chart-5: oklch(0.680 0.150 135);   /* sage-green              */
+  --chart-6: oklch(0.640 0.145 250);   /* steel-blue              */
 
   /* ---- Skeleton shimmer highlight (dark) ---- */
-  --skeleton-highlight:         oklch(0.240 0.022 285);
+  --skeleton-highlight:         oklch(0.240 0.016 65);
 
   /* ---- Sidebar (slightly different from card) ---- */
-  --sidebar:                    oklch(0.125 0.020 285);
-  --sidebar-foreground:         oklch(0.955 0.008 285);
-  --sidebar-primary:            oklch(0.680 0.200 285);
-  --sidebar-primary-foreground: oklch(0.080 0.020 285);
-  --sidebar-accent:             oklch(0.200 0.030 285);
-  --sidebar-accent-foreground:  oklch(0.720 0.185 285);
+  --sidebar:                    oklch(0.125 0.014 65);
+  --sidebar-foreground:         oklch(0.950 0.008 65);
+  --sidebar-primary:            oklch(0.740 0.175 65);
+  --sidebar-primary-foreground: oklch(0.100 0.015 65);
+  --sidebar-accent:             oklch(0.200 0.025 65);
+  --sidebar-accent-foreground:  oklch(0.740 0.175 65);
   --sidebar-border:             oklch(1 0 0 / 8%);
-  --sidebar-ring:               oklch(0.680 0.200 285);
+  --sidebar-ring:               oklch(0.740 0.175 65);
 }
 
 /* ============================================================
@@ -302,12 +303,7 @@
     transition-timing-function: var(--ease-out-expo);
   }
 
-  /* Disable transition on motion-sensitive elements */
-  *, *::before, *::after {
-    transition: none;
-  }
-
-  /* Re-enable only on interactive targets */
+  /* Interactive elements get transform transitions too */
   button, a, [role="button"],
   input, select, textarea {
     transition-property: color, background-color, border-color, box-shadow, opacity, transform;
@@ -320,6 +316,7 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
   }
 
   body {
@@ -340,11 +337,6 @@
 
   code, kbd, pre {
     font-family: var(--font-geist-mono), monospace;
-  }
-
-  /* Smooth scroll */
-  html {
-    scroll-behavior: smooth;
   }
 }
 
@@ -440,10 +432,10 @@
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius-xl);  /* 14px — slightly more rounded */
-    padding: 1.25rem 1.5rem;          /* 20px 24px */
+    padding: 1.5rem;                   /* 24px uniform */
     box-shadow:
-      0 1px 2px oklch(0 0 0 / 4%),
-      0 0 0 0 var(--brand);           /* ring placeholder for hover */
+      0 1px 3px oklch(0 0 0 / 6%),
+      0 4px 12px oklch(0 0 0 / 4%);
     transition-property: box-shadow, transform, border-color;
     transition-duration: var(--duration-normal);
     transition-timing-function: var(--ease-out-expo);
@@ -458,8 +450,8 @@
     background: linear-gradient(
       90deg,
       transparent 0%,
-      oklch(0.680 0.200 285 / 40%) 30%,
-      oklch(0.780 0.175 60 / 30%) 70%,
+      oklch(0.740 0.175 65 / 40%) 30%,
+      oklch(0.700 0.175 25 / 30%) 70%,
       transparent 100%
     );
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
@@ -468,19 +460,19 @@
 
   .kpi-card:hover {
     box-shadow:
-      0 4px 16px oklch(0.490 0.240 285 / 10%),
-      0 1px 3px oklch(0 0 0 / 6%),
-      0 0 0 1px oklch(0.490 0.240 285 / 15%);
-    border-color: oklch(0.680 0.200 285 / 35%);
-    transform: translateY(-1px);
+      0 6px 24px oklch(0.600 0.190 65 / 12%),
+      0 2px 6px oklch(0 0 0 / 7%),
+      0 0 0 1px oklch(0.600 0.190 65 / 12%);
+    border-color: oklch(0.740 0.175 65 / 35%);
+    transform: translateY(-2px);
   }
 
   .dark .kpi-card:hover {
     box-shadow:
-      0 4px 20px oklch(0.680 0.200 285 / 15%),
+      0 4px 20px oklch(0.740 0.175 65 / 15%),
       0 1px 3px oklch(0 0 0 / 40%),
-      0 0 0 1px oklch(0.680 0.200 285 / 20%);
-    border-color: oklch(0.680 0.200 285 / 30%);
+      0 0 0 1px oklch(0.740 0.175 65 / 20%);
+    border-color: oklch(0.740 0.175 65 / 30%);
   }
 
   /* KPI icon container */
@@ -509,16 +501,17 @@
     letter-spacing: -0.04em;
     font-variant-numeric: tabular-nums;
     color: var(--foreground);
-    margin-top: 0.75rem;    /* 12px from icon */
+    margin-top: 1rem;       /* 16px from icon */
   }
 
   /* KPI label */
   .kpi-label {
-    font-size: 0.8125rem;   /* 13px */
-    font-weight: 500;
+    font-size: 0.75rem;     /* 12px — demoted to overline */
+    font-weight: 600;
     color: var(--muted-foreground);
-    margin-top: 0.125rem;   /* 2px */
-    letter-spacing: -0.005em;
+    margin-top: 0.25rem;    /* 4px */
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
   }
 
   /* KPI delta — directional change indicator */
@@ -559,13 +552,17 @@
     border-radius: var(--radius-xl);
     overflow: hidden;
     box-shadow: 0 1px 2px oklch(0 0 0 / 4%);
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
   }
 
   .chart-card-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    padding: 1.25rem 1.5rem 0;  /* 20px 24px */
+    padding: 1.25rem 1.5rem 1rem;
+    border-bottom: 1px solid var(--border);
   }
 
   .chart-card-title {
@@ -583,6 +580,9 @@
 
   .chart-card-body {
     padding: 1rem 1.5rem 1.25rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
 
   /* Recharts customization via CSS */
@@ -690,14 +690,14 @@
     background: linear-gradient(
       135deg,
       var(--brand) 0%,
-      oklch(0.620 0.175 218) 100%
+      oklch(0.700 0.175 25) 100%
     );
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     flex-shrink: 0;
-    box-shadow: 0 2px 8px oklch(0.490 0.240 285 / 30%);
+    box-shadow: 0 2px 8px oklch(0.600 0.190 65 / 30%);
   }
 
   .sidebar-brand-name {
@@ -748,20 +748,21 @@
   [data-sidebar="menu-button"][data-active="true"]::before {
     content: "";
     position: absolute;
-    left: -0.625rem;          /* flush to padding edge */
-    top: 25%;
-    bottom: 25%;
-    width: 2.5px;
-    border-radius: 0 2px 2px 0;
+    left: -0.75rem;
+    top: 20%;
+    bottom: 20%;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
     background: var(--brand);
     opacity: 1;
   }
 
   /* Icon inside nav button */
   [data-sidebar="menu-button"] svg {
-    width: 1rem !important;    /* 16px */
-    height: 1rem !important;
-    opacity: 0.7;
+    width: 1.0625rem !important;  /* 17px */
+    height: 1.0625rem !important;
+    opacity: 0.75;
+    flex-shrink: 0 !important;
   }
 
   [data-sidebar="menu-button"]:hover svg,
@@ -859,7 +860,7 @@
     background: linear-gradient(
       90deg,
       var(--muted) 25%,
-      var(--skeleton-highlight, oklch(0.930 0.006 285)) 50%,
+      var(--skeleton-highlight, oklch(0.930 0.008 65)) 50%,
       var(--muted) 75%
     );
     background-size: 200% 100%;
@@ -872,7 +873,7 @@
     background: linear-gradient(
       90deg,
       var(--muted) 25%,
-      var(--skeleton-highlight, oklch(0.930 0.006 285)) 50%,
+      var(--skeleton-highlight, oklch(0.930 0.008 65)) 50%,
       var(--muted) 75%
     ) !important;
     background-size: 200% 100% !important;
@@ -940,7 +941,7 @@
      ---------------------------------------------------------- */
 
   .progress-bar-track {
-    height: 5px;
+    height: 6px;
     border-radius: 999px;
     background: var(--muted);
     overflow: hidden;
@@ -952,7 +953,7 @@
     background: linear-gradient(
       90deg,
       var(--brand) 0%,
-      oklch(0.620 0.175 218) 100%  /* violet → cyan gradient */
+      oklch(0.620 0.175 25) 100%   /* amber → coral gradient */
     );
     transition: width 0.6s var(--ease-out-expo);
     transform-origin: left;
@@ -1108,8 +1109,8 @@
   }
 
   .bottom-nav-label {
-    font-size: 0.5625rem;  /* 9px */
-    font-weight: 500;
+    font-size: 0.6875rem;  /* 11px — minimum readable */
+    font-weight: 600;
     letter-spacing: 0.01em;
     line-height: 1.2;
     text-align: center;
@@ -1160,12 +1161,12 @@
      ---------------------------------------------------------- */
 
   ::selection {
-    background: oklch(0.490 0.240 285 / 18%);
+    background: oklch(0.600 0.190 65 / 18%);
     color: var(--foreground);
   }
 
   .dark ::selection {
-    background: oklch(0.680 0.200 285 / 25%);
+    background: oklch(0.740 0.175 65 / 25%);
     color: var(--foreground);
   }
 }
@@ -1179,7 +1180,7 @@
     background: linear-gradient(
       135deg,
       var(--brand) 0%,
-      oklch(0.620 0.175 218) 100%
+      oklch(0.700 0.175 25) 100%
     );
     -webkit-background-clip: text;
     background-clip: text;
@@ -1188,7 +1189,7 @@
 
   /* Inset shadow — used for pressed states */
   .shadow-inset-brand {
-    box-shadow: inset 0 1px 3px oklch(0.490 0.240 285 / 15%);
+    box-shadow: inset 0 1px 3px oklch(0.600 0.190 65 / 15%);
   }
 
   /* Glass card surface */
@@ -1210,4 +1211,35 @@
   .tracking-heading { letter-spacing: -0.02em; }
   .tracking-body    { letter-spacing: -0.005em; }
   .tracking-label   { letter-spacing: 0.06em; }
+
+  /* ----------------------------------------------------------
+     KPI CARD ANOMALY HIGHLIGHTING
+     Applied when trend exceeds ±30%
+     ---------------------------------------------------------- */
+
+  @keyframes anomaly-pulse-amber {
+    0%, 100% { box-shadow: 0 0 0 0 oklch(0.78 0.16 65 / 0%); }
+    50%       { box-shadow: 0 0 0 4px oklch(0.78 0.16 65 / 25%); }
+  }
+
+  @keyframes anomaly-pulse-red {
+    0%, 100% { box-shadow: 0 0 0 0 oklch(0.62 0.20 25 / 0%); }
+    50%       { box-shadow: 0 0 0 4px oklch(0.62 0.20 25 / 25%); }
+  }
+
+  .kpi-card--anomaly-positive {
+    border-color: oklch(0.78 0.16 65 / 60%);
+    animation: anomaly-pulse-amber 2s ease-in-out infinite;
+  }
+
+  .kpi-card--anomaly-negative {
+    border-color: oklch(0.62 0.20 25 / 60%);
+    animation: anomaly-pulse-red 2s ease-in-out infinite;
+  }
+
+  /* Legacy alias kept for compatibility */
+  .kpi-card--anomaly {
+    border-color: oklch(0.78 0.16 65 / 60%);
+    animation: anomaly-pulse-amber 2s ease-in-out infinite;
+  }
 }

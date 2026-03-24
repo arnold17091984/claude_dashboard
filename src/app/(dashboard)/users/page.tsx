@@ -1,6 +1,5 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MessageSquare, DollarSign, Wrench } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { useUsers } from "@/hooks/use-api";
 
 interface UserEntry {
   userId: string;
@@ -44,48 +44,34 @@ function formatNumber(n: number): string {
 }
 
 export default function UsersPage() {
-  const [data, setData] = useState<UsersData | null>(null);
-  const [loading, setLoading] = useState(true);
   const { t } = useI18n();
-
-  const fetchData = useCallback(() => {
-    setLoading(true);
-    fetch("/api/v1/users")
-      .then((r) => r.json())
-      .then(setData)
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const { data, isLoading, isValidating, mutate } = useUsers();
 
   return (
     <>
       <Header
         title={t("page.users.title")}
         description={t("page.users.description")}
-        onRefresh={fetchData}
-        isRefreshing={loading}
+        onRefresh={() => mutate()}
+        isRefreshing={isValidating}
       />
       <div className="dashboard-content">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-h2 text-foreground">{t("page.users.heading")}</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              {t("page.users.count", { count: data?.users.length || 0 })}
+              {t("page.users.count", { count: (data as UsersData | undefined)?.users.length || 0 })}
             </p>
           </div>
         </div>
 
-        {loading ? (
+        {isLoading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[...Array(6)].map((_, i) => (
               <Skeleton key={i} className="h-40 rounded-xl" />
             ))}
           </div>
-        ) : data?.users.length === 0 ? (
+        ) : (data as UsersData | undefined)?.users.length === 0 ? (
           <Card>
             <CardContent className="flex items-center justify-center py-12">
               <p className="text-muted-foreground">{t("page.users.noUsers")}</p>
@@ -93,7 +79,7 @@ export default function UsersPage() {
           </Card>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {data?.users.map((user) => (
+            {(data as UsersData | undefined)?.users.map((user) => (
               <Link key={user.userId} href={`/users/${user.userId}`}>
                 <Card className="transition-colors hover:bg-muted/30">
                   <CardContent className="pt-4">

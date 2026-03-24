@@ -6,9 +6,12 @@
  * and eagerly by the optional periodic sweep.
  */
 
+const MAX_ENTRIES = 500;
+
 interface CacheEntry<T> {
   value: T;
   expiresAt: number;
+  insertedAt: number;
 }
 
 class TTLCache {
@@ -30,11 +33,23 @@ class TTLCache {
 
   /**
    * Store a value with a TTL (in seconds).
+   * When the store exceeds MAX_ENTRIES, evict the oldest entry by insertion order.
    */
   set<T>(key: string, value: T, ttlSeconds: number): void {
+    // If updating an existing key, delete first so it moves to "newest" position.
+    if (this.store.has(key)) {
+      this.store.delete(key);
+    } else if (this.store.size >= MAX_ENTRIES) {
+      // Evict the oldest entry (Map preserves insertion order).
+      const oldestKey = this.store.keys().next().value;
+      if (oldestKey !== undefined) {
+        this.store.delete(oldestKey);
+      }
+    }
     this.store.set(key, {
       value,
       expiresAt: Date.now() + ttlSeconds * 1000,
+      insertedAt: Date.now(),
     });
   }
 

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Header } from "@/components/layout/header";
@@ -27,6 +26,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { useSessionDetail } from "@/hooks/use-api";
 
 interface SessionDetail {
   id: string;
@@ -118,29 +118,12 @@ function MetaRow({
 export default function SessionDetailPage() {
   const params = useParams();
   const sessionId = params.id as string;
-  const [data, setData] = useState<SessionDetailData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
   const { t, dateLocale } = useI18n();
 
-  useEffect(() => {
-    setLoading(true);
-    fetch(`/api/v1/sessions/${sessionId}`)
-      .then((r) => {
-        if (r.status === 404) {
-          setNotFound(true);
-          return null;
-        }
-        return r.json();
-      })
-      .then((d) => {
-        if (d) setData(d);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [sessionId]);
+  const { data: rawData, error, isLoading } = useSessionDetail(sessionId);
+  const data = rawData as SessionDetailData | undefined;
 
-  if (loading) {
+  if (isLoading) {
     return (
       <>
         <Header title={t("page.sessionDetail.title")} description={t("common.loading")} />
@@ -157,7 +140,7 @@ export default function SessionDetailPage() {
     );
   }
 
-  if (notFound || !data?.session) {
+  if (error || !data?.session) {
     return (
       <>
         <Header

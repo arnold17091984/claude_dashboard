@@ -4,6 +4,7 @@ import { aiInsights } from "@/server/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { parseLimit, parseInsightType } from "@/server/api/middleware/validate";
 import { aiRateLimit } from "@/server/api/middleware/rate-limit";
+import { apiKeyAuth } from "@/server/api/middleware/auth";
 
 export const aiInsightsRoute = new Hono();
 
@@ -74,7 +75,7 @@ aiInsightsRoute.get("/compare", async (c) => {
 });
 
 // Generate weekly insight (rate limited)
-aiInsightsRoute.post("/generate", aiRateLimit, async (c) => {
+aiInsightsRoute.post("/generate", apiKeyAuth, aiRateLimit, async (c) => {
   if (!process.env.ANTHROPIC_API_KEY) {
     return c.json(
       {
@@ -117,7 +118,7 @@ aiInsightsRoute.post("/generate", aiRateLimit, async (c) => {
 });
 
 // Generate insight for a specific user: POST /api/v1/ai-insights/generate/user/:userId
-aiInsightsRoute.post("/generate/user/:userId", aiRateLimit, async (c) => {
+aiInsightsRoute.post("/generate/user/:userId", apiKeyAuth, aiRateLimit, async (c) => {
   if (!process.env.ANTHROPIC_API_KEY) {
     return c.json(
       {

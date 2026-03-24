@@ -165,3 +165,39 @@ usersRoute.get("/:id", async (c) => {
     period,
   });
 });
+
+// PATCH /users/:userId — Update user profile (displayName, email, team)
+usersRoute.patch("/:userId", async (c) => {
+  const userId = c.req.param("userId");
+  const body = await c.req.json().catch(() => ({}));
+
+  const updates: Record<string, string> = {};
+  if (typeof body.displayName === "string" && body.displayName.trim()) {
+    updates.displayName = body.displayName.trim();
+  }
+  if (typeof body.email === "string") {
+    updates.email = body.email.trim() || null as unknown as string;
+  }
+  if (typeof body.team === "string") {
+    updates.team = body.team.trim() || null as unknown as string;
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return c.json({ error: "No valid fields to update" }, 400);
+  }
+
+  updates.updatedAt = new Date().toISOString();
+
+  const result = db
+    .update(users)
+    .set(updates)
+    .where(eq(users.id, userId))
+    .run();
+
+  if (result.changes === 0) {
+    return c.json({ error: "User not found" }, 404);
+  }
+
+  const updated = db.select().from(users).where(eq(users.id, userId)).all();
+  return c.json({ user: updated[0] });
+});

@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useMemo } from "react";
 import { Header } from "@/components/layout/header";
+import { usePeriod } from "@/hooks/use-period";
 import { ToolCategoryChart } from "@/components/dashboard/tool-category-chart";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,6 +22,7 @@ import {
 } from "@/components/ui/chart";
 import { Wrench, Bot, Code2, Cpu } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { useToolsUsage, useToolsTrend } from "@/hooks/use-api";
 
 interface CategorySummary {
   category: string;
@@ -70,33 +72,22 @@ interface TrendData {
 }
 
 export default function ToolsPage() {
-  const [toolsData, setToolsData] = useState<ToolsData | null>(null);
-  const [trendData, setTrendData] = useState<TrendData | null>(null);
-  const [period, setPeriod] = useState("30d");
-  const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = usePeriod("30d");
   const { t } = useI18n();
+
+  const { data: rawToolsData, isLoading: isToolsLoading, isValidating: isToolsValidating, mutate: mutateTools } = useToolsUsage(period);
+  const { data: rawTrendData, isLoading: isTrendLoading, isValidating: isTrendValidating, mutate: mutateTrend } = useToolsTrend(period);
+
+  const toolsData = rawToolsData as ToolsData | undefined;
+  const trendData = rawTrendData as TrendData | undefined;
+
+  const isLoading = isToolsLoading || isTrendLoading;
+  const isValidating = isToolsValidating || isTrendValidating;
+  const mutate = () => { mutateTools(); mutateTrend(); };
 
   const trendChartConfig = {
     toolCalls: { label: t("chart.toolCalls"), color: "var(--chart-1)" },
   };
-
-  const fetchData = useCallback(() => {
-    setLoading(true);
-    Promise.all([
-      fetch(`/api/v1/tools/usage?period=${period}`).then((r) => r.json()),
-      fetch(`/api/v1/tools/trend?period=${period}`).then((r) => r.json()),
-    ])
-      .then(([tools, trend]) => {
-        setToolsData(tools);
-        setTrendData(trend);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [period]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
 
   const trendChartData = useMemo(
     () =>
@@ -112,8 +103,8 @@ export default function ToolsPage() {
       <Header
         title={t("page.tools.title")}
         description={t("page.tools.description")}
-        onRefresh={fetchData}
-        isRefreshing={loading}
+        onRefresh={() => mutate()}
+        isRefreshing={isValidating}
       />
       <div className="dashboard-content">
         <div className="flex items-center justify-between">
@@ -127,7 +118,7 @@ export default function ToolsPage() {
           </Tabs>
         </div>
 
-        {loading ? (
+        {isLoading ? (
           <div className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-4">
               {[...Array(4)].map((_, i) => (

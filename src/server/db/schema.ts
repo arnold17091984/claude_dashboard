@@ -142,6 +142,26 @@ export const dailySummary = sqliteTable(
   ]
 );
 
+// Installed skills/commands/agents inventory per user
+export const skillInventory = sqliteTable(
+  "skill_inventory",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id),
+    name: text("name").notNull(),
+    type: text("type").notNull(), // "command" | "skill" | "agent"
+    syncedAt: text("synced_at")
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+  },
+  (t) => [
+    index("idx_skill_inventory_user_id").on(t.userId),
+    index("idx_skill_inventory_user_type").on(t.userId, t.type),
+  ]
+);
+
 export const aiInsights = sqliteTable("ai_insights", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   insightType: text("insight_type").notNull(),
@@ -152,4 +172,35 @@ export const aiInsights = sqliteTable("ai_insights", {
     .notNull()
     .$defaultFn(() => new Date().toISOString()),
   expiresAt: text("expires_at"),
+});
+
+// ---------------------------------------------------------------------------
+// Authentication tables (dashboard login — separate from Claude Code "users")
+// ---------------------------------------------------------------------------
+
+// Dashboard accounts: nickname/password login for the web UI
+export const accounts = sqliteTable("accounts", {
+  id: text("id").primaryKey(), // UUID
+  nickname: text("nickname").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  role: text("role").notNull().default("member"), // "admin" | "member"
+  linkedUserId: text("linked_user_id").references(() => users.id), // Links to Claude Code user
+  createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
+});
+
+// Personal API keys for data ingestion via Claude Code hooks
+export const personalApiKeys = sqliteTable("personal_api_keys", {
+  id: text("id").primaryKey(), // The API key itself (dk_xxxxxxxxxxxx)
+  accountId: text("account_id").notNull().references(() => accounts.id),
+  label: text("label").notNull().default("default"),
+  createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
+  lastUsedAt: text("last_used_at"),
+});
+
+// Web UI sessions (cookie-based auth)
+export const authSessions = sqliteTable("auth_sessions", {
+  id: text("id").primaryKey(), // Session token
+  accountId: text("account_id").notNull().references(() => accounts.id),
+  expiresAt: text("expires_at").notNull(),
+  createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
 });

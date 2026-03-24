@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useMemo } from "react";
 import { Header } from "@/components/layout/header";
+import { usePeriod } from "@/hooks/use-period";
 import { ModelCostChart } from "@/components/dashboard/model-cost-chart";
 import { CostTrendChart } from "@/components/dashboard/cost-trend-chart";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DollarSign, Zap, TrendingDown, BarChart3 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { useModelsUsage, useModelsCost } from "@/hooks/use-api";
 
 interface ModelUsage {
   model: string;
@@ -67,29 +69,18 @@ function CostEfficiencyBadge({
 }
 
 export default function ModelsPage() {
-  const [usageData, setUsageData] = useState<ModelUsageData | null>(null);
-  const [costData, setCostData] = useState<ModelCostData | null>(null);
-  const [period, setPeriod] = useState("30d");
-  const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = usePeriod("30d");
   const { t } = useI18n();
 
-  const fetchData = useCallback(() => {
-    setLoading(true);
-    Promise.all([
-      fetch(`/api/v1/models/usage?period=${period}`).then((r) => r.json()),
-      fetch(`/api/v1/models/cost?period=${period}`).then((r) => r.json()),
-    ])
-      .then(([usage, cost]) => {
-        setUsageData(usage);
-        setCostData(cost);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [period]);
+  const { data: rawUsageData, isLoading: isUsageLoading, isValidating: isUsageValidating, mutate: mutateUsage } = useModelsUsage(period);
+  const { data: rawCostData, isLoading: isCostLoading, isValidating: isCostValidating, mutate: mutateCost } = useModelsCost(period);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const usageData = rawUsageData as ModelUsageData | undefined;
+  const costData = rawCostData as ModelCostData | undefined;
+
+  const isLoading = isUsageLoading || isCostLoading;
+  const isValidating = isUsageValidating || isCostValidating;
+  const mutate = () => { mutateUsage(); mutateCost(); };
 
   const pieData = useMemo(
     () =>
@@ -107,8 +98,8 @@ export default function ModelsPage() {
       <Header
         title={t("page.models.title")}
         description={t("page.models.description")}
-        onRefresh={fetchData}
-        isRefreshing={loading}
+        onRefresh={() => mutate()}
+        isRefreshing={isValidating}
       />
       <div className="dashboard-content">
         <div className="flex items-center justify-between">
@@ -122,7 +113,7 @@ export default function ModelsPage() {
           </Tabs>
         </div>
 
-        {loading ? (
+        {isLoading ? (
           <div className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-3">
               {[...Array(3)].map((_, i) => (

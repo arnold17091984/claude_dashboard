@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
 import { Header } from "@/components/layout/header";
+import { usePeriod } from "@/hooks/use-period";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,6 +24,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { useProjects } from "@/hooks/use-api";
 
 interface ProjectEntry {
   projectName: string | null;
@@ -64,27 +65,15 @@ function formatNumber(n: number): string {
 }
 
 export default function ProjectsPage() {
-  const [data, setData] = useState<ProjectsData | null>(null);
-  const [period, setPeriod] = useState("30d");
-  const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = usePeriod("30d");
   const { t, dateLocale } = useI18n();
+
+  const { data: rawData, isLoading, isValidating, mutate } = useProjects(period);
+  const data = rawData as ProjectsData | undefined;
 
   const chartConfig = {
     sessionCount: { label: t("page.projects.sessionCount"), color: "var(--chart-1)" },
   };
-
-  const fetchData = useCallback(() => {
-    setLoading(true);
-    fetch(`/api/v1/projects?period=${period}`)
-      .then((r) => r.json())
-      .then(setData)
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [period]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
 
   const totalCost = data?.projects.reduce((s, p) => s + p.cost, 0) || 0;
   const totalSessions = data?.projects.reduce((s, p) => s + p.sessionCount, 0) || 0;
@@ -99,8 +88,8 @@ export default function ProjectsPage() {
       <Header
         title={t("page.projects.title")}
         description={t("page.projects.description")}
-        onRefresh={fetchData}
-        isRefreshing={loading}
+        onRefresh={() => mutate()}
+        isRefreshing={isValidating}
       />
       <div className="dashboard-content">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -114,7 +103,7 @@ export default function ProjectsPage() {
           </Tabs>
         </div>
 
-        {loading ? (
+        {isLoading ? (
           <div className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-3">
               {[...Array(3)].map((_, i) => (

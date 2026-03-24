@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { usePeriod } from "@/hooks/use-period";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +30,7 @@ import {
   FolderGit2,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { useUserDetail } from "@/hooks/use-api";
 
 interface UserData {
   user: {
@@ -102,10 +103,11 @@ function getInitials(name: string): string {
 export default function UserDetailPage() {
   const params = useParams();
   const userId = params.id as string;
-  const [data, setData] = useState<UserData | null>(null);
-  const [period, setPeriod] = useState("30d");
-  const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = usePeriod("30d");
   const { t, dateLocale } = useI18n();
+
+  const { data: rawData, error, isLoading } = useUserDetail(userId, period);
+  const data = rawData as UserData | undefined;
 
   const trendConfig = {
     sessions: { label: t("chart.sessions"), color: "var(--chart-1)" },
@@ -116,16 +118,7 @@ export default function UserDetailPage() {
     count: { label: t("page.userDetail.usageCount"), color: "var(--chart-2)" },
   };
 
-  useEffect(() => {
-    setLoading(true);
-    fetch(`/api/v1/users/${userId}?period=${period}`)
-      .then((r) => r.json())
-      .then(setData)
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [userId, period]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <>
         <Header title={t("page.userDetail.title")} description={t("common.loading")} />
@@ -140,7 +133,7 @@ export default function UserDetailPage() {
     );
   }
 
-  if (!data?.user) {
+  if (error || !data?.user) {
     return (
       <>
         <Header title={t("page.userDetail.title")} description={t("page.userDetail.notFound")} />

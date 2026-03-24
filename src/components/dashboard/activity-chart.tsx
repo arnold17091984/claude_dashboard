@@ -1,13 +1,13 @@
 "use client";
 
-import { memo, useMemo } from "react";
+import { memo, useMemo, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import {
   Area,
   AreaChart,
   CartesianGrid,
   XAxis,
   YAxis,
-  ResponsiveContainer,
 } from "recharts";
 import {
   ChartContainer,
@@ -30,6 +30,17 @@ export const ActivityChart = memo(function ActivityChart({
   data: DailyActivity[];
 }) {
   const { t } = useI18n();
+  const router = useRouter();
+
+  const handleChartClick = useCallback(
+    (payload: { activePayload?: Array<{ payload: { date: string } }> }) => {
+      const date = payload?.activePayload?.[0]?.payload?.date;
+      if (date) {
+        router.push(`/sessions?date=${date}`);
+      }
+    },
+    [router]
+  );
 
   const chartConfig = useMemo(
     () => ({
@@ -59,7 +70,12 @@ export const ActivityChart = memo(function ActivityChart({
       </div>
       <div className="chart-card-body">
         <ChartContainer config={chartConfig} className="h-[280px] w-full">
-          <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -16, bottom: 0 }}>
+          <AreaChart
+            data={chartData}
+            margin={{ top: 4, right: 4, left: -16, bottom: 0 }}
+            onClick={handleChartClick}
+            style={{ cursor: "pointer" }}
+          >
             <defs>
               <linearGradient id="sessions-gradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.3} />
